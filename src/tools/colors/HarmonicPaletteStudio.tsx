@@ -50,9 +50,31 @@ export const HarmonicPaletteStudio: React.FC = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [savedPalettes, setSavedPalettes] = useState<{ id: string; name: string; colors: string[] }[]>([]);
 
-
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const paletteContainerRef = useRef<HTMLDivElement>(null);
+
+  // Load URL colors on mount if present
+  useEffect(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlColors = searchParams.get('colors') || window.location.hash.replace('#palette=', '').replace('#colors=', '');
+      if (urlColors) {
+        const hexList = urlColors.split(/[,-]/).filter(Boolean);
+        if (hexList.length >= 2) {
+          const parsed = hexList.map((h, i) => ({
+            id: `c-${i + 1}`,
+            hex: h.startsWith('#') ? h : `#${h}`,
+            isLocked: false
+          }));
+          setColors(parsed);
+          setHistory([parsed]);
+          setHistoryIndex(0);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // Load saved palettes from localStorage
   useEffect(() => {
@@ -63,6 +85,7 @@ export const HarmonicPaletteStudio: React.FC = () => {
       // ignore
     }
   }, []);
+
 
   // Close color picker when clicking outside
   useEffect(() => {
@@ -367,7 +390,7 @@ export const HarmonicPaletteStudio: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const url = `${window.location.origin}${window.location.pathname}#palette=${colors.map((c) => c.hex.replace('#', '')).join('-')}`;
+              const url = `${window.location.origin}${window.location.pathname}?colors=${colors.map((c) => c.hex.replace('#', '')).join(',')}`;
               copyToClipboard(url, 'Shareable Link');
             }}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-semibold text-[#f2f2f5] transition-all cursor-pointer"
@@ -387,7 +410,6 @@ export const HarmonicPaletteStudio: React.FC = () => {
             <Download className="w-3.5 h-3.5" />
             <span>Export</span>
           </button>
-
         </div>
       </header>
 
@@ -561,10 +583,13 @@ export const HarmonicPaletteStudio: React.FC = () => {
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => copyToClipboard(shadeHex, shadeHex)}
+                      onClick={() => {
+                        updateColorHex(color.id, shadeHex);
+                        copyToClipboard(shadeHex, `Replaced with ${shadeHex.toUpperCase()}`);
+                      }}
                       className="w-full h-6 sm:h-7 transition-all duration-150 hover:scale-[1.04] hover:z-10 cursor-pointer relative group flex items-center justify-center shadow-xs"
                       style={{ backgroundColor: shadeHex }}
-                      title={`Copy ${shadeHex.toUpperCase()}`}
+                      title={`Click to replace with ${shadeHex.toUpperCase()}`}
                     >
                       <span className="opacity-0 group-hover:opacity-100 font-mono text-[9px] font-black px-1.5 py-0.5 rounded bg-black/70 text-white shadow-md transition-opacity">
                         {shadeHex.toUpperCase()}
@@ -577,6 +602,7 @@ export const HarmonicPaletteStudio: React.FC = () => {
           })}
         </div>
       </main>
+
 
       {/* Floating Copied Toast */}
       {copiedToast && (
