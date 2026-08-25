@@ -31,13 +31,13 @@ graph TD
 ---
 
 ## 阶段 0 (Phase 0): Apple Light UI System & Live Homepage Directory
-- [ ] **Design Tokens & Theme**:
+- [x] **Design Tokens & Theme**:
   - Pure Apple Light Palette: Canvas `#F5F5F7`, Surface `#FFFFFF`, Border `#E5E5EA`, Text `#1D1D1F`, Subtext `#86868B`, Accent `#0071E3`.
   - Typography: SF Pro / Inter typography hierarchy with tight letter tracking.
   - Controls: Native Apple-style sliders, segmented pill switches, compact input boxes.
-- [ ] **Apple Navigation Header**:
+- [x] **Apple Navigation Header**:
   - MagicPattern logo mark, "← All Tools" back button when inside a tool studio, active tool title, search trigger (`⌘K`), clean export triggers.
-- [ ] **Homepage & Tools Directory View**:
+- [x] **Homepage & Tools Directory View**:
   - Curated directory grid of the **17 designated tools**.
   - **Live Procedural Visual Previews**: Each card runs a lightweight live canvas/SVG renderer showing a real preview of its generator.
   - Category filters: `All (17)`, `Shaders & Gradients (4)`, `Patterns & Textures (8)`, `Color Tools (4)`, `SVG & Charts (1)`.
