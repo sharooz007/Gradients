@@ -48,9 +48,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   return (
-    <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-3.5 z-20 custom-scrollbar overscroll-contain">
+    <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
       {/* Colors Panel */}
-      <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3">
+      <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-3">
         <ColorPickerGroup
           colors={state.colors}
           onChange={(cols) => onUpdateState({ colors: cols }, true)}
@@ -59,11 +59,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
       </div>
 
       {/* Wave Controls */}
-      <div className="bg-[#fafafc] rounded-2xl border border-[#e5e5ea] overflow-hidden">
+      <div className="border-b border-[#e5e5ea] overflow-hidden">
         <button
           type="button"
           onClick={() => toggleSection('wave')}
-          className="w-full px-3.5 py-3 flex items-center justify-between text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider hover:bg-[#f2f2f7] transition-colors cursor-pointer"
+          className="w-full px-3.5 py-3 flex items-center justify-between text-[13px] font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-2">
             <Waves className="w-4 h-4 text-[#0071e3]" />
@@ -73,7 +73,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </button>
 
           {openSections.wave && (
-            <div className="p-3.5 pt-0 flex flex-col gap-3.5 border-t border-slate-200/60 dark:border-slate-700/40">
+            <div className="p-3.5 pt-0 flex flex-col gap-3.5">
               <SliderControl
                 label="Zoom"
                 value={state.zoom}
@@ -160,21 +160,21 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Distortion / Local Warp */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
           <button
             type="button"
             onClick={() => toggleSection('warp')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors"
+            className="w-full px-3.5 py-3 flex items-center justify-between text-[13px] font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
+              <Sparkles className="w-4 h-4 text-[#86868b]" />
               <span>Distortion & Warp</span>
             </div>
             <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.warp ? 'rotate-180' : ''}`} />
           </button>
 
           {openSections.warp && (
-            <div className="p-3.5 pt-0 flex flex-col gap-3.5 border-t border-slate-200/60 dark:border-slate-700/40">
+            <div className="p-3.5 pt-0 flex flex-col gap-3.5">
               <SliderControl
                 label="Warp Intensity"
                 value={state.localWarpIntensity}
@@ -210,11 +210,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Bayer Dithering */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
-          <div className="px-3.5 py-3 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/40">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
+          <div className="px-3.5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Grid className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <Grid className="w-4 h-4 text-[#86868b]" />
+              <span className="text-[13px] font-semibold text-[#1d1d1f]">
                 Retro Dithering
               </span>
             </div>
@@ -252,11 +252,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Film Grain */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
-          <div className="px-3.5 py-3 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/40">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
+          <div className="px-3.5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Film className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <Film className="w-4 h-4 text-[#86868b]" />
+              <span className="text-[13px] font-semibold text-[#1d1d1f]">
                 Film Grain
               </span>
             </div>
@@ -293,11 +293,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Vignette */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
-          <div className="px-3.5 py-3 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/40">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
+          <div className="px-3.5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-rose-500" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <Eye className="w-4 h-4 text-[#86868b]" />
+              <span className="text-[13px] font-semibold text-[#1d1d1f]">
                 Vignette
               </span>
             </div>
@@ -334,11 +334,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Frosted / Fluted Fractal Glass Effect */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
-          <div className="px-3.5 py-3 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/40">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
+          <div className="px-3.5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-cyan-500" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <Layers className="w-4 h-4 text-[#86868b]" />
+              <span className="text-[13px] font-semibold text-[#1d1d1f]">
                 Glass Refraction
               </span>
             </div>
@@ -396,21 +396,21 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Color Filters & Adjustments */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
           <button
             type="button"
             onClick={() => toggleSection('filters')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors"
+            className="w-full px-3.5 py-3 flex items-center justify-between text-[13px] font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <SunMedium className="w-4 h-4 text-yellow-500" />
+              <SunMedium className="w-4 h-4 text-[#86868b]" />
               <span>Color Filters</span>
             </div>
             <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.filters ? 'rotate-180' : ''}`} />
           </button>
 
           {openSections.filters && (
-            <div className="p-3.5 pt-0 flex flex-col gap-3.5 border-t border-slate-200/60 dark:border-slate-700/40">
+            <div className="p-3.5 pt-0 flex flex-col gap-3.5">
               <SliderControl
                 label="Brightness"
                 value={state.brightness}
@@ -446,11 +446,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Animation & Seed */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden mb-6">
-          <div className="px-3.5 py-3 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/40">
+        <div className="border-b border-[#e5e5ea] overflow-hidden">
+          <div className="px-3.5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Play className="w-4 h-4 text-blue-500" />
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <Play className="w-4 h-4 text-[#86868b]" />
+              <span className="text-[13px] font-semibold text-[#1d1d1f]">
                 Live Animate
               </span>
             </div>

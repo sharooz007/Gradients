@@ -279,7 +279,7 @@ export function App() {
               <button
                 type="button"
                 onClick={randomizeAll}
-                className="apple-pill-btn apple-pill-btn-secondary gap-1"
+                className="apple-btn apple-btn-secondary gap-1"
                 title="Randomize (Space)"
               >
                 <span>Generate</span>

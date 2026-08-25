@@ -99,7 +99,7 @@ export const ShaderCanvas = forwardRef<ShaderCanvasRef, ShaderCanvasProps>(
         ref={canvasRef}
         width={width}
         height={height}
-        className="w-full h-full object-contain rounded-lg shadow-2xl transition-shadow duration-300"
+        className="w-full h-full object-contain rounded-lg w-full h-full block"
         style={{
           aspectRatio: `${width} / ${height}`
         }}

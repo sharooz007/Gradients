@@ -19,16 +19,16 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
   onFrameUpdate
 }) => {
   return (
-    <main className="relative flex-1 h-full canvas-grid-bg flex items-center justify-center p-6 sm:p-10 overflow-hidden select-none">
+    <main className="relative flex-1 h-full bg-[#f5f5f7] flex items-center justify-center p-6 sm:p-10 overflow-hidden select-none">
       {/* Top Floating Badge with Dimensions & Aspect */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 px-3 py-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full border border-slate-200/80 dark:border-slate-800/80 shadow-sm text-xs font-medium text-slate-600 dark:text-slate-300">
-        <span className="font-mono font-semibold text-slate-900 dark:text-white">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 px-3 py-1 bg-white rounded-full border border-[#e5e5ea] shadow-sm text-xs font-medium text-[#86868b]">
+        <span className="font-mono font-semibold text-[#1d1d1f]">
           {dimensions.width} × {dimensions.height}
         </span>
         {dimensions.aspectRatio && (
           <>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span className="text-[11px] text-slate-400">{dimensions.aspectRatio}</span>
+            <span className="text-[#e5e5ea]">•</span>
+            <span className="text-[11px] text-[#a1a1a6]">{dimensions.aspectRatio}</span>
           </>
         )}
       </div>
@@ -36,7 +36,7 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
       {/* Main Canvas Framing Container */}
       <div className="relative w-full h-full max-w-5xl max-h-[75vh] flex items-center justify-center">
         <div
-          className="relative max-w-full max-h-full rounded-2xl p-1.5 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/80 shadow-2xl transition-all duration-300"
+          className="relative max-w-full max-h-full rounded-lg border border-[#000000]/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden transition-all duration-300 bg-white"
           style={{
             aspectRatio: `${dimensions.width} / ${dimensions.height}`
           }}

@@ -67,8 +67,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectTool }) => {
                   onClick={() => setSelectedCategory(cat.id as ToolCategory | 'all')}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#1d1d1f] text-white shadow-xs'
-                      : 'bg-white text-[#86868b] hover:text-[#1d1d1f] border border-[#e5e5ea] hover:bg-[#f2f2f7]'
+                      ? 'bg-[#1d1d1f] text-white'
+                      : 'bg-white text-[#86868b] border border-[#e5e5ea] hover:border-[#1d1d1f] hover:text-[#1d1d1f]'
                   }`}
                 >
                   {cat.name}{' '}

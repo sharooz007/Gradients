@@ -102,7 +102,7 @@ export const AppleHeader: React.FC<AppleHeaderProps> = ({
               <button
                 type="button"
                 onClick={onExport}
-                className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+                className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Export</span>
