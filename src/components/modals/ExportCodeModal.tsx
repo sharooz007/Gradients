@@ -231,29 +231,29 @@ ${fragmentShader.trim()}
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[85vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl max-h-[85vh] bg-[#16171d] rounded-2xl shadow-2xl border border-[#2e303b] overflow-hidden flex flex-col text-[#f2f2f5]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#23242c]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#6268f8]/15 text-[#818cf8] flex items-center justify-center">
               <Code className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Export Code Snippet</h3>
-              <p className="text-xs text-slate-500">Embed this shader in your React or WebGL project</p>
+              <h3 className="text-sm font-semibold text-[#f2f2f5]">Export Code Snippet</h3>
+              <p className="text-xs text-[#8f94a8]">Embed this shader in your React or WebGL project</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center px-6 pt-3 border-b border-slate-100 dark:border-slate-800 gap-2 bg-slate-50/50 dark:bg-slate-950/30">
+        <div className="flex items-center px-6 pt-3 border-b border-[#23242c] gap-2 bg-[#1a1b24]">
           {[
             { id: 'react', label: 'React Component' },
             { id: 'glsl', label: 'GLSL Fragment' },
@@ -266,8 +266,8 @@ ${fragmentShader.trim()}
               onClick={() => setActiveTab(tab.id as any)}
               className={`pb-2 px-3 text-xs font-semibold border-b-2 transition-all cursor-pointer ${
                 activeTab === tab.id
-                  ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+                  ? 'border-[#6268f8] text-[#818cf8]'
+                  : 'border-transparent text-[#8f94a8] hover:text-[#f2f2f5]'
               }`}
             >
               {tab.label}
@@ -276,11 +276,11 @@ ${fragmentShader.trim()}
         </div>
 
         {/* Code view */}
-        <div className="relative flex-1 p-4 overflow-hidden flex flex-col bg-slate-950">
+        <div className="relative flex-1 p-4 overflow-hidden flex flex-col bg-[#0e0f14]">
           <button
             type="button"
             onClick={handleCopy}
-            className="absolute top-6 right-6 z-10 py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+            className="absolute top-6 right-6 z-10 py-1.5 px-3 rounded-lg bg-[#23242c] hover:bg-[#2a2b36] border border-[#2e303b] text-[#f2f2f5] text-xs font-medium flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
           >
             {copied ? (
               <>
@@ -289,13 +289,13 @@ ${fragmentShader.trim()}
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3.5 h-3.5 text-[#818cf8]" />
                 <span>Copy Code</span>
               </>
             )}
           </button>
 
-          <pre className="flex-1 overflow-auto font-mono text-xs text-slate-200 p-4 leading-relaxed select-text">
+          <pre className="flex-1 overflow-auto font-mono text-xs text-[#9da1b4] p-4 leading-relaxed select-text custom-scrollbar">
             <code>{getActiveCode()}</code>
           </pre>
         </div>
@@ -303,3 +303,4 @@ ${fragmentShader.trim()}
     </div>
   );
 };
+

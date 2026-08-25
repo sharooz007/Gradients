@@ -85,23 +85,50 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   const activeIndex = selectedIndex !== -1 ? selectedIndex : 0;
 
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  if (isCollapsed) {
+    return (
+      <div className="w-10 h-full shrink-0 border-r border-[#23242c] bg-[#16171d] flex flex-col items-center py-4 z-20">
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(false)}
+          className="p-1.5 rounded-lg text-[#8f94a8] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
+          title="Expand sidebar"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <aside className="w-80 h-full min-h-0 shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden z-20 custom-scrollbar overscroll-contain pb-12 select-none">
+    <aside className="w-80 h-full min-h-0 shrink-0 border-r border-[#23242c] bg-[#16171d] overflow-y-auto overflow-x-hidden z-20 custom-scrollbar overscroll-contain pb-12 select-none relative">
+      {/* Collapse button on top-right */}
+      <button
+        type="button"
+        onClick={() => setIsCollapsed(true)}
+        className="absolute top-3 right-3 p-1 rounded-md text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer z-30"
+        title="Collapse sidebar"
+      >
+        <ChevronLeft className="w-3.5 h-3.5" />
+      </button>
+
       <div className="flex flex-col w-full min-h-max">
         {/* Video Mode Timeline Keyframe Header */}
         {mode === 'video' && project && (
-          <div className="border-b border-[#e5e5ea] bg-[#f8f8fb] overflow-hidden">
+          <div className="border-b border-[#23242c] bg-[#1a1b24] overflow-hidden">
             <button
               type="button"
               onClick={() => toggleSection('video')}
-              className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#0071e3] tracking-wider uppercase hover:bg-[#f0f0f7] transition-colors cursor-pointer"
+              className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#818cf8] tracking-wider uppercase hover:bg-[#20222e] transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Video className="w-3.5 h-3.5 text-[#0071e3]" />
-                <span>Video Keyframe</span>
+                <Video className="w-3.5 h-3.5 text-[#818cf8]" />
+                <span>Video</span>
               </div>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-[#0071e3] transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 text-[#818cf8] transition-transform duration-200 ${
                   openSections.video ? 'rotate-180' : ''
                 }`}
               />
@@ -111,36 +138,36 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               <div className="p-3.5 pt-0 flex flex-col gap-3">
                 {/* Duration control */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[10px] font-bold text-[#86868b] tracking-wider uppercase">
+                  <span className="text-[10px] font-bold text-[#8f94a8] tracking-wider uppercase">
                     Duration
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <input
                       type="number"
                       min={1}
                       max={30}
                       value={project.duration}
                       onChange={(e) => onChangeDuration && onChangeDuration(parseFloat(e.target.value) || 5)}
-                      className="w-14 px-2 py-1 text-xs font-mono font-semibold text-right bg-white rounded-lg border border-[#e5e5ea] text-[#1d1d1f] outline-none focus:border-[#0071e3]"
+                      className="w-14 px-2 py-1 text-xs font-mono font-semibold text-right bg-[#23242c] rounded-lg border border-[#2e303b] text-[#f2f2f5] outline-none focus:border-[#6268f8]"
                     />
-                    <span className="text-xs text-[#86868b] font-medium">sec</span>
+                    <span className="text-xs text-[#686c82] font-medium">sec</span>
                   </div>
                 </div>
 
                 {/* Keyframe selector & stepper */}
                 {activeKf && (
-                  <div className="p-2.5 rounded-xl bg-white border border-[#e5e5ea] flex flex-col gap-2.5 shadow-2xs">
+                  <div className="p-2.5 rounded-xl bg-[#23242c] border border-[#2e303b] flex flex-col gap-2.5 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {/* Diamond Badge */}
-                        <div className="w-5 h-5 rounded bg-[#0071e3] text-white text-[10px] font-extrabold flex items-center justify-center rotate-45 shadow-xs">
+                        <div className="w-5 h-5 rounded bg-[#6268f8] text-white text-[10px] font-extrabold flex items-center justify-center rotate-45 shadow-[0_0_8px_rgba(98,104,248,0.5)]">
                           <span className="-rotate-45">{activeIndex + 1}</span>
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-xs font-bold text-[#1d1d1f]">
+                          <span className="text-xs font-bold text-[#f2f2f5]">
                             Keyframe {activeIndex + 1} of {keyframes.length}
                           </span>
-                          <span className="text-[10px] font-mono text-[#86868b]">
+                          <span className="text-[10px] font-mono text-[#8f94a8]">
                             at {activeKf.time.toFixed(2)}s
                           </span>
                         </div>
@@ -152,7 +179,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                           type="button"
                           disabled={activeIndex <= 0}
                           onClick={() => onSelectKeyframe && onSelectKeyframe(keyframes[activeIndex - 1].id)}
-                          className="p-1 rounded-lg border border-[#e5e5ea] bg-[#f2f2f7] hover:bg-[#e5e5ea] text-[#1d1d1f] disabled:opacity-30 transition-all cursor-pointer"
+                          className="p-1 rounded-lg border border-[#2e303b] bg-[#1a1b24] hover:bg-[#2e303b] text-[#f2f2f5] disabled:opacity-30 transition-all cursor-pointer"
                           title="Previous Keyframe"
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
@@ -161,7 +188,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                           type="button"
                           disabled={activeIndex >= keyframes.length - 1}
                           onClick={() => onSelectKeyframe && onSelectKeyframe(keyframes[activeIndex + 1].id)}
-                          className="p-1 rounded-lg border border-[#e5e5ea] bg-[#f2f2f7] hover:bg-[#e5e5ea] text-[#1d1d1f] disabled:opacity-30 transition-all cursor-pointer"
+                          className="p-1 rounded-lg border border-[#2e303b] bg-[#1a1b24] hover:bg-[#2e303b] text-[#f2f2f5] disabled:opacity-30 transition-all cursor-pointer"
                           title="Next Keyframe"
                         >
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -170,7 +197,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                           <button
                             type="button"
                             onClick={() => onRemoveKeyframe(activeKf.id)}
-                            className="p-1 rounded-lg border border-[#e5e5ea] bg-[#f2f2f7] hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-[#86868b] transition-all cursor-pointer ml-1"
+                            className="p-1 rounded-lg border border-[#2e303b] bg-[#1a1b24] hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/40 text-[#8f94a8] transition-all cursor-pointer ml-1"
                             title="Delete Keyframe"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -180,19 +207,19 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                     </div>
 
                     {/* Easing Selector */}
-                    <div className="pt-2 border-t border-[#f2f2f7] flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-bold text-[#86868b] tracking-wider uppercase">
+                    <div className="pt-2 border-t border-[#2e303b] flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold text-[#8f94a8] tracking-wider uppercase">
                         Easing
                       </span>
                       <select
                         value={activeKf.easing}
                         onChange={(e) => onUpdateKeyframeEasing && onUpdateKeyframeEasing(activeKf.id, e.target.value as EasingType)}
-                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#f2f2f7] border border-[#e5e5ea] text-[#1d1d1f] outline-none cursor-pointer focus:border-[#0071e3]"
+                        className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#1a1b24] border border-[#2e303b] text-[#f2f2f5] outline-none cursor-pointer focus:border-[#6268f8]"
                       >
+                        <option value="linear">Linear</option>
                         <option value="easeInOut">Ease In/Out</option>
                         <option value="easeIn">Ease In</option>
                         <option value="easeOut">Ease Out</option>
-                        <option value="linear">Linear</option>
                       </select>
                     </div>
                   </div>
@@ -203,7 +230,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         )}
 
         {/* Colors Panel */}
-        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-3">
+        <div className="p-3.5 border-b border-[#23242c] flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase flex items-center gap-1.5">
+              <span>Colors</span>
+            </span>
+          </div>
           <ColorPickerGroup
             colors={state.colors}
             onChange={(cols) => onUpdateState({ colors: cols }, true)}
@@ -212,18 +244,18 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Customize Panel (Wave, Zoom, Position & Warp) */}
-        <div className="border-b border-[#e5e5ea] overflow-hidden">
+        <div className="border-b border-[#23242c] overflow-hidden">
           <button
             type="button"
             onClick={() => toggleSection('customize')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase hover:bg-[#1a1b24] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Sliders className="w-3.5 h-3.5 text-[#86868b]" />
+              <Sliders className="w-3.5 h-3.5 text-[#8f94a8]" />
               <span>Customize</span>
             </div>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-[#86868b] transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-[#8f94a8] transition-transform duration-200 ${
                 openSections.customize ? 'rotate-180' : ''
               }`}
             />
@@ -276,8 +308,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               />
 
               {/* Mesh Waves Sub-Header */}
-              <div className="pt-1.5 pb-0.5 border-t border-[#f2f2f7]">
-                <span className="text-[10px] font-bold text-[#86868b] tracking-wider uppercase">
+              <div className="pt-2 pb-0.5 border-t border-[#23242c]">
+                <span className="text-[10px] font-bold text-[#686c82] tracking-wider uppercase">
                   Mesh Waves
                 </span>
               </div>
@@ -323,8 +355,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               />
 
               {/* Distortion Sub-Header */}
-              <div className="pt-1.5 pb-0.5 border-t border-[#f2f2f7]">
-                <span className="text-[10px] font-bold text-[#86868b] tracking-wider uppercase">
+              <div className="pt-2 pb-0.5 border-t border-[#23242c]">
+                <span className="text-[10px] font-bold text-[#686c82] tracking-wider uppercase">
                   Distortion
                 </span>
               </div>
@@ -353,18 +385,18 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Effects Section (Dithering, Grain, Vignette, Fractal Glass) */}
-        <div className="border-b border-[#e5e5ea] overflow-hidden">
+        <div className="border-b border-[#23242c] overflow-hidden">
           <button
             type="button"
             onClick={() => toggleSection('effects')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase hover:bg-[#1a1b24] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#86868b]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#8f94a8]" />
               <span>Effects</span>
             </div>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-[#86868b] transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-[#8f94a8] transition-transform duration-200 ${
                 openSections.effects ? 'rotate-180' : ''
               }`}
             />
@@ -373,11 +405,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           {openSections.effects && (
             <div className="p-3.5 pt-0 flex flex-col gap-3">
               {/* Dithering Card */}
-              <div className="p-3 rounded-xl border border-[#e5e5ea] bg-[#fafafc] flex flex-col gap-2.5">
+              <div className="p-3 rounded-xl border border-[#2e303b] bg-[#1a1b24] flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Grid className="w-3.5 h-3.5 text-[#86868b]" />
-                    <span className="text-xs font-semibold text-[#1d1d1f]">Dithering</span>
+                    <Grid className="w-3.5 h-3.5 text-[#8f94a8]" />
+                    <span className="text-xs font-semibold text-[#f2f2f5]">Dithering</span>
                   </div>
                   <ToggleSwitch
                     size="sm"
@@ -387,7 +419,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 </div>
 
                 {state.ditherEnabled && (
-                  <div className="pt-2 border-t border-[#e5e5ea] flex flex-col gap-3">
+                  <div className="pt-2 border-t border-[#2e303b] flex flex-col gap-3">
                     <SliderControl
                       label="Levels"
                       value={state.ditherLevels}
@@ -412,11 +444,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               </div>
 
               {/* Grain Card */}
-              <div className="p-3 rounded-xl border border-[#e5e5ea] bg-[#fafafc] flex flex-col gap-2.5">
+              <div className="p-3 rounded-xl border border-[#2e303b] bg-[#1a1b24] flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Film className="w-3.5 h-3.5 text-[#86868b]" />
-                    <span className="text-xs font-semibold text-[#1d1d1f]">Grain</span>
+                    <Film className="w-3.5 h-3.5 text-[#8f94a8]" />
+                    <span className="text-xs font-semibold text-[#f2f2f5]">Grain</span>
                   </div>
                   <ToggleSwitch
                     size="sm"
@@ -426,7 +458,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 </div>
 
                 {state.grainEnabled && (
-                  <div className="pt-2 border-t border-[#e5e5ea] flex flex-col gap-3">
+                  <div className="pt-2 border-t border-[#2e303b] flex flex-col gap-3">
                     <SliderControl
                       label="Intensity"
                       value={state.grainIntensity}
@@ -441,11 +473,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               </div>
 
               {/* Vignette Card */}
-              <div className="p-3 rounded-xl border border-[#e5e5ea] bg-[#fafafc] flex flex-col gap-2.5">
+              <div className="p-3 rounded-xl border border-[#2e303b] bg-[#1a1b24] flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Eye className="w-3.5 h-3.5 text-[#86868b]" />
-                    <span className="text-xs font-semibold text-[#1d1d1f]">Vignette</span>
+                    <Eye className="w-3.5 h-3.5 text-[#8f94a8]" />
+                    <span className="text-xs font-semibold text-[#f2f2f5]">Vignette</span>
                   </div>
                   <ToggleSwitch
                     size="sm"
@@ -455,7 +487,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 </div>
 
                 {state.vignetteEnabled && (
-                  <div className="pt-2 border-t border-[#e5e5ea] flex flex-col gap-3">
+                  <div className="pt-2 border-t border-[#2e303b] flex flex-col gap-3">
                     <SliderControl
                       label="Intensity"
                       value={state.vignetteIntensity}
@@ -479,11 +511,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               </div>
 
               {/* Fractal Glass Card */}
-              <div className="p-3 rounded-xl border border-[#e5e5ea] bg-[#fafafc] flex flex-col gap-2.5">
+              <div className="p-3 rounded-xl border border-[#2e303b] bg-[#1a1b24] flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5 text-[#86868b]" />
-                    <span className="text-xs font-semibold text-[#1d1d1f]">Fractal Glass</span>
+                    <Layers className="w-3.5 h-3.5 text-[#8f94a8]" />
+                    <span className="text-xs font-semibold text-[#f2f2f5]">Fractal Glass</span>
                   </div>
                   <ToggleSwitch
                     size="sm"
@@ -493,7 +525,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                 </div>
 
                 {state.fractalGlassEnabled && (
-                  <div className="pt-2 border-t border-[#e5e5ea] flex flex-col gap-3">
+                  <div className="pt-2 border-t border-[#2e303b] flex flex-col gap-3">
                     <SliderControl
                       label="Steps"
                       value={state.fractalGlassSteps}
@@ -529,15 +561,15 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Filters Section (Brightness, Contrast, Hue) */}
-        <div className="border-b border-[#e5e5ea] overflow-hidden">
+        <div className="border-b border-[#23242c] overflow-hidden">
           <button
             type="button"
             onClick={() => toggleSection('filters')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase hover:bg-[#1a1b24] transition-colors cursor-pointer"
           >
             <span>Filters</span>
             <ChevronDown
-              className={`w-3.5 h-3.5 text-[#86868b] transition-transform duration-200 ${
+              className={`w-3.5 h-3.5 text-[#8f94a8] transition-transform duration-200 ${
                 openSections.filters ? 'rotate-180' : ''
               }`}
             />
@@ -578,22 +610,22 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Canvas Size Section */}
-        <div className="border-b border-[#e5e5ea] overflow-hidden">
+        <div className="border-b border-[#23242c] overflow-hidden">
           <button
             type="button"
             onClick={() => toggleSection('canvasSize')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+            className="w-full px-3.5 py-3 flex items-center justify-between text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase hover:bg-[#1a1b24] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <Maximize2 className="w-3.5 h-3.5 text-[#86868b]" />
+              <Maximize2 className="w-3.5 h-3.5 text-[#8f94a8]" />
               <span>Canvas Size</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-[10px] text-[#86868b]">
+              <span className="font-mono text-[10px] text-[#686c82]">
                 {dimensions.width}×{dimensions.height}
               </span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-[#86868b] transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 text-[#8f94a8] transition-transform duration-200 ${
                   openSections.canvasSize ? 'rotate-180' : ''
                 }`}
               />
@@ -614,12 +646,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
                       onClick={() => onUpdateDimensions(preset)}
                       className={`px-2.5 py-1.5 text-left rounded-lg text-xs transition-all cursor-pointer border ${
                         isSelected
-                          ? 'border-[#0071e3] bg-[#e8f2fc] text-[#0071e3] font-semibold'
-                          : 'border-[#e5e5ea] bg-white text-[#1d1d1f] hover:bg-[#f5f5f7]'
+                          ? 'border-[#6268f8] bg-[#6268f8]/15 text-[#818cf8] font-semibold shadow-xs'
+                          : 'border-[#2e303b] bg-[#1a1b24] text-[#f2f2f5] hover:bg-[#23242c] hover:border-[#3d4050]'
                       }`}
                     >
                       <div className="truncate text-[11px] font-medium">{preset.label}</div>
-                      <div className="text-[10px] text-[#86868b] font-mono">
+                      <div className="text-[10px] text-[#686c82] font-mono">
                         {preset.width} × {preset.height}
                       </div>
                     </button>
@@ -628,34 +660,34 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
               </div>
 
               {/* Custom Width and Height Inputs */}
-              <div className="pt-2 border-t border-[#e5e5ea] flex flex-col gap-2">
-                <span className="text-[10px] font-bold text-[#86868b] tracking-wider uppercase">
+              <div className="pt-2 border-t border-[#23242c] flex flex-col gap-2">
+                <span className="text-[10px] font-bold text-[#8f94a8] tracking-wider uppercase">
                   Custom Dimensions
                 </span>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#e5e5ea] bg-[#f5f5f7]">
-                    <span className="text-[11px] text-[#86868b] font-medium">W:</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#2e303b] bg-[#23242c]">
+                    <span className="text-[11px] text-[#8f94a8] font-medium">W:</span>
                     <input
                       type="number"
                       min={100}
                       max={8000}
                       value={dimensions.width}
                       onChange={(e) => handleCustomDimension('width', parseInt(e.target.value) || 1000)}
-                      className="w-full text-xs font-mono font-medium text-[#1d1d1f] bg-transparent outline-none"
+                      className="w-full text-xs font-mono font-medium text-[#f2f2f5] bg-transparent outline-none"
                     />
-                    <span className="text-[10px] text-[#86868b]">px</span>
+                    <span className="text-[10px] text-[#686c82]">px</span>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#e5e5ea] bg-[#f5f5f7]">
-                    <span className="text-[11px] text-[#86868b] font-medium">H:</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#2e303b] bg-[#23242c]">
+                    <span className="text-[11px] text-[#8f94a8] font-medium">H:</span>
                     <input
                       type="number"
                       min={100}
                       max={8000}
                       value={dimensions.height}
                       onChange={(e) => handleCustomDimension('height', parseInt(e.target.value) || 1000)}
-                      className="w-full text-xs font-mono font-medium text-[#1d1d1f] bg-transparent outline-none"
+                      className="w-full text-xs font-mono font-medium text-[#f2f2f5] bg-transparent outline-none"
                     />
-                    <span className="text-[10px] text-[#86868b]">px</span>
+                    <span className="text-[10px] text-[#686c82]">px</span>
                   </div>
                 </div>
               </div>
@@ -664,11 +696,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
 
         {/* Animation & Seed */}
-        <div className="border-b border-[#e5e5ea] overflow-hidden">
+        <div className="border-b border-[#23242c] overflow-hidden">
           <div className="px-3.5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Play className="w-3.5 h-3.5 text-[#86868b]" />
-              <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">
+              <Play className="w-3.5 h-3.5 text-[#8f94a8]" />
+              <span className="text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase">
                 Live Animate
               </span>
             </div>
@@ -693,13 +725,13 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             )}
 
             <div className="flex items-center justify-between gap-2 pt-1">
-              <span className="text-xs font-medium text-[#1d1d1f]">Random Seed</span>
+              <span className="text-xs font-medium text-[#f2f2f5]">Random Seed</span>
               <button
                 type="button"
                 onClick={onShuffleSeed}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#e5e5ea] bg-white hover:bg-[#f5f5f7] text-xs font-medium text-[#1d1d1f] transition-colors cursor-pointer shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-medium text-[#f2f2f5] transition-colors cursor-pointer shadow-xs"
               >
-                <RotateCw className="w-3 h-3 text-[#86868b]" />
+                <RotateCw className="w-3 h-3 text-[#818cf8]" />
                 <span>Shuffle ({Math.round(state.seed)})</span>
               </button>
             </div>

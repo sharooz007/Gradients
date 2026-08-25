@@ -175,67 +175,86 @@ export function App() {
       // 1. Shaders & Gradients
       case 'shader-background-generator':
         return (
-          <>
-            <div className="flex-1 flex min-h-0 h-[calc(100vh-3.5rem)] overflow-hidden">
-              <LeftSidebar
-                state={activeShaderState}
-                dimensions={dimensions}
-                mode={mode}
-                project={timeline.project}
-                selectedKeyframeId={timeline.selectedKeyframeId}
-                onSelectKeyframe={(id) => {
-                  timeline.setSelectedKeyframeId(id);
-                  const kf = timeline.project.keyframes.find((k) => k.id === id);
-                  if (kf) timeline.seek(kf.time);
-                }}
-                onUpdateKeyframeEasing={timeline.updateKeyframeEasing}
-                onRemoveKeyframe={timeline.removeKeyframe}
-                onChangeDuration={timeline.setDuration}
-                onUpdateState={handleUpdateShaderState}
-                onUpdateDimensions={setDimensions}
-                onShuffleColors={shuffleColors}
-                onShuffleSeed={shuffleSeed}
-              />
+          <div className="flex-1 flex min-h-0 h-[calc(100vh-3.5rem)] overflow-hidden bg-[#0e0f14]">
+            <LeftSidebar
+              state={activeShaderState}
+              dimensions={dimensions}
+              mode={mode}
+              project={timeline.project}
+              selectedKeyframeId={timeline.selectedKeyframeId}
+              onSelectKeyframe={(id) => {
+                timeline.setSelectedKeyframeId(id);
+                const kf = timeline.project.keyframes.find((k) => k.id === id);
+                if (kf) timeline.seek(kf.time);
+              }}
+              onUpdateKeyframeEasing={timeline.updateKeyframeEasing}
+              onRemoveKeyframe={timeline.removeKeyframe}
+              onChangeDuration={timeline.setDuration}
+              onUpdateState={handleUpdateShaderState}
+              onUpdateDimensions={setDimensions}
+              onShuffleColors={shuffleColors}
+              onShuffleSeed={shuffleSeed}
+            />
 
-              <PreviewArea
-                state={activeShaderState}
-                dimensions={dimensions}
-                canvasRef={canvasRef}
-              />
+            <PreviewArea
+              state={activeShaderState}
+              dimensions={dimensions}
+              mode={mode}
+              onSetMode={setMode}
+              canvasRef={canvasRef}
+              footerContent={
+                mode === 'video' ? (
+                  <VideoTimeline
+                    project={timeline.project}
+                    playhead={timeline.playhead}
+                    isPlaying={timeline.isPlaying}
+                    isLooping={timeline.isLooping}
+                    selectedKeyframeId={timeline.selectedKeyframeId}
+                    onTogglePlay={timeline.togglePlay}
+                    onToggleLoop={() => timeline.setIsLooping(!timeline.isLooping)}
+                    onSeek={timeline.seek}
+                    onAddKeyframe={timeline.addKeyframeAtPlayhead}
+                    onRemoveKeyframe={timeline.removeKeyframe}
+                    onUpdateEasing={timeline.updateKeyframeEasing}
+                    onChangeDuration={timeline.setDuration}
+                    onRandomizeKeyframe={(id) => {
+                      const kf = timeline.project.keyframes.find((k) => k.id === id);
+                      if (kf) {
+                        const randomRot = Math.floor(Math.random() * 360);
+                        const randomFreq = 1.0 + Math.random() * 10.0;
+                        timeline.updateKeyframeValues(id, {
+                          rotation: randomRot,
+                          freq: randomFreq,
+                          amplitude: 0.5 + Math.random() * 2.5
+                        });
+                      }
+                    }}
+                    onDuplicateKeyframe={(id) => {
+                      const kf = timeline.project.keyframes.find((k) => k.id === id);
+                      if (kf) {
+                        timeline.addKeyframeAtPlayhead({ ...kf.values });
+                      }
+                    }}
+                  />
+                ) : null
+              }
+            />
 
-              <RightSidebar
-                currentPresetId={selectedPresetId}
-                onSelectPreset={handleSelectPreset}
-                customPresets={customPresets}
-                onOpenSaveModal={() => setIsSavePresetOpen(true)}
-                onDeleteCustomPreset={(id) => {
-                  const updated = customPresets.filter((p) => p.id !== id);
-                  setCustomPresets(updated);
-                  localStorage.setItem('magic_custom_shader_presets', JSON.stringify(updated));
-                }}
-                onImportPresetJson={(p) => {
-                  handleSavePreset(p);
-                }}
-              />
-            </div>
-
-            {mode === 'video' && (
-              <VideoTimeline
-                project={timeline.project}
-                playhead={timeline.playhead}
-                isPlaying={timeline.isPlaying}
-                isLooping={timeline.isLooping}
-                selectedKeyframeId={timeline.selectedKeyframeId}
-                onTogglePlay={timeline.togglePlay}
-                onToggleLoop={() => timeline.setIsLooping(!timeline.isLooping)}
-                onSeek={timeline.seek}
-                onAddKeyframe={timeline.addKeyframeAtPlayhead}
-                onRemoveKeyframe={timeline.removeKeyframe}
-                onUpdateEasing={timeline.updateKeyframeEasing}
-                onChangeDuration={timeline.setDuration}
-              />
-            )}
-          </>
+            <RightSidebar
+              currentPresetId={selectedPresetId}
+              onSelectPreset={handleSelectPreset}
+              customPresets={customPresets}
+              onOpenSaveModal={() => setIsSavePresetOpen(true)}
+              onDeleteCustomPreset={(id) => {
+                const updated = customPresets.filter((p) => p.id !== id);
+                setCustomPresets(updated);
+                localStorage.setItem('magic_custom_shader_presets', JSON.stringify(updated));
+              }}
+              onImportPresetJson={(p) => {
+                handleSavePreset(p);
+              }}
+            />
+          </div>
         );
 
       case 'mesh-gradients':
@@ -295,13 +314,19 @@ export function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#f5f5f7] text-[#1d1d1f] overflow-hidden font-sans">
-      {/* Apple Light Navigation Header */}
+    <div className="flex flex-col h-screen w-screen bg-[#0e0f14] text-[#f2f2f5] overflow-hidden font-sans">
+      {/* Studio Navigation Header */}
       <AppleHeader
         view={view}
         activeTool={activeToolItem}
         onNavigateHome={() => setView('home')}
         onOpenSearch={() => setIsToolsGalleryOpen(true)}
+        onGenerateNew={view === 'tool' && activeToolId === 'shader-background-generator' ? randomizeAll : undefined}
+        onUndo={undo}
+        onRedo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onSave={() => setIsSavePresetOpen(true)}
         onExport={
           view === 'tool' && activeToolId === 'shader-background-generator'
             ? () => (mode === 'video' ? setIsExportVideoOpen(true) : setIsExportImageOpen(true))
@@ -309,84 +334,25 @@ export function App() {
         }
         toolActions={
           view === 'tool' && activeToolId === 'shader-background-generator' ? (
-            <div className="flex items-center gap-2">
-              {/* Image / Video Mode Switcher */}
-              <div className="flex items-center p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea] text-xs">
-                <button
-                  type="button"
-                  onClick={() => setMode('image')}
-                  className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
-                    mode === 'image'
-                      ? 'bg-white text-[#1d1d1f] shadow-2xs font-semibold'
-                      : 'text-[#86868b] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  Image
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMode('video')}
-                  className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
-                    mode === 'video'
-                      ? 'bg-white text-[#1d1d1f] shadow-2xs font-semibold'
-                      : 'text-[#86868b] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  Video
-                </button>
-              </div>
-
-              {/* Undo / Redo Buttons */}
-              <div className="hidden sm:flex items-center p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea]">
-                <button
-                  type="button"
-                  disabled={!canUndo}
-                  onClick={undo}
-                  title="Undo (⌘Z)"
-                  className="px-2 py-1 rounded-full text-xs font-medium text-[#1d1d1f] hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
-                >
-                  Undo
-                </button>
-                <button
-                  type="button"
-                  disabled={!canRedo}
-                  onClick={redo}
-                  title="Redo (⌘⇧Z)"
-                  className="px-2 py-1 rounded-full text-xs font-medium text-[#1d1d1f] hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
-                >
-                  Redo
-                </button>
-              </div>
-
+            <div className="flex items-center gap-1.5">
               {/* Quick Copy to Clipboard */}
               <button
                 type="button"
                 onClick={handleQuickCopy}
-                className="hidden md:inline-flex apple-btn apple-btn-secondary text-xs font-medium"
+                className="hidden md:inline-flex studio-btn studio-btn-secondary"
                 title="Copy PNG image to clipboard for Figma/Canva"
               >
-                <span>{copiedClipboard ? 'Copied Image!' : 'Copy'}</span>
+                <span>{copiedClipboard ? 'Copied Image!' : 'Copy PNG'}</span>
               </button>
 
               {/* Code Export Button */}
               <button
                 type="button"
                 onClick={() => setIsExportCodeOpen(true)}
-                className="hidden lg:inline-flex apple-btn apple-btn-secondary text-xs font-medium"
+                className="hidden lg:inline-flex studio-btn studio-btn-secondary"
                 title="View React, GLSL, HTML and CSS code"
               >
                 <span>Code</span>
-              </button>
-
-              {/* Generate / Randomize Button */}
-              <button
-                type="button"
-                onClick={randomizeAll}
-                className="apple-btn apple-btn-secondary gap-1 shadow-2xs"
-                title="Randomize (Space)"
-              >
-                <span>Randomize</span>
-                <kbd className="hidden sm:inline-block text-[9px] px-1 py-0.2 rounded bg-black/5 font-mono text-[#86868b]">Space</kbd>
               </button>
             </div>
           ) : undefined

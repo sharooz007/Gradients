@@ -1,8 +1,12 @@
 import React from 'react';
 import {
-  ArrowLeft,
-  Search,
+  Sparkles,
+  Info,
+  ChevronsUpDown,
   Download,
+  Bookmark,
+  RotateCcw,
+  RotateCw,
   ExternalLink
 } from 'lucide-react';
 import type { ToolItem } from '../../types/tools';
@@ -13,6 +17,12 @@ interface AppleHeaderProps {
   onNavigateHome: () => void;
   onOpenSearch: () => void;
   onExport?: () => void;
+  onGenerateNew?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onSave?: () => void;
   toolActions?: React.ReactNode;
 }
 
@@ -22,90 +32,121 @@ export const AppleHeader: React.FC<AppleHeaderProps> = ({
   onNavigateHome,
   onOpenSearch,
   onExport,
+  onGenerateNew,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
+  onSave,
   toolActions
 }) => {
-  const isMac = typeof navigator !== 'undefined' && navigator.platform?.includes('Mac');
-
   return (
-    <header className="h-14 shrink-0 w-full px-4 sm:px-6 border-b border-[#e5e5ea] bg-white/90 backdrop-blur-md flex items-center justify-between z-30 select-none">
-      {/* Left Branding / Navigation */}
+    <header className="h-14 shrink-0 w-full px-4 sm:px-6 border-b border-[#23242c] bg-[#16171d] flex items-center justify-between z-30 select-none">
+      {/* Left: MagicPattern Logo & Generate New */}
       <div className="flex items-center gap-3">
-        {view === 'tool' ? (
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onNavigateHome}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-[#1d1d1f] bg-[#f2f2f7] hover:bg-[#e5e5ea] border border-[#e5e5ea] transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>All Tools</span>
-            </button>
-
-            <div className="h-4 w-px bg-[#e5e5ea]" />
-
-            {activeTool && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-[#1d1d1f] tracking-tight">
-                  {activeTool.name}
-                </span>
-                <span className="hidden md:inline-block px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#f2f2f7] text-[#86868b] border border-[#e5e5ea]">
-                  {activeTool.categoryName}
-                </span>
-              </div>
-            )}
+        <button
+          type="button"
+          onClick={onNavigateHome}
+          className="flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer text-left"
+        >
+          {/* Logo icon */}
+          <div className="w-7 h-7 rounded-lg bg-[#6268f8] text-white flex items-center justify-center shadow-[0_0_12px_rgba(98,104,248,0.5)] font-bold text-xs">
+            <span className="tracking-tighter">MP</span>
           </div>
-        ) : (
+          <span className="font-bold text-sm text-[#f2f2f5] tracking-tight hidden sm:inline">
+            MagicPattern
+          </span>
+        </button>
+
+        {onGenerateNew && (
           <button
             type="button"
-            onClick={onNavigateHome}
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity cursor-pointer text-left"
+            onClick={onGenerateNew}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#818cf8] bg-[#6268f8]/10 hover:bg-[#6268f8]/20 border border-[#6268f8]/30 transition-all cursor-pointer shadow-xs ml-1"
+            title="Generate fresh random gradient (Space)"
           >
-            <div className="w-8 h-8 rounded-xl bg-[#0071e3] text-white flex items-center justify-center shadow-xs font-bold text-sm">
-              M
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-sm text-[#1d1d1f] tracking-tight">
-                  MagicPattern
-                </span>
-                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#0071e3]/10 text-[#0071e3]">
-                  17 Tools
-                </span>
-              </div>
-            </div>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Generate New</span>
           </button>
         )}
       </div>
 
-      {/* Center Search Trigger */}
+      {/* Center: Glowing Tool Pill Badge with Info Icon */}
       <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={onOpenSearch}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f2f2f7] hover:bg-[#e5e5ea] border border-[#e5e5ea] text-xs text-[#86868b] hover:text-[#1d1d1f] transition-all cursor-pointer shadow-2xs min-w-[180px] sm:min-w-[220px]"
+          className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#20222f] hover:bg-[#282a3a] border border-[#3b3e55] text-xs font-semibold text-[#f2f2f5] transition-all cursor-pointer tool-badge-glow shadow-md"
+          title="Switch tool (⌘K)"
         >
-          <Search className="w-3.5 h-3.5 text-[#86868b]" />
-          <span className="flex-1 text-left">Search 17 tools...</span>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-white rounded border border-[#d1d1d6] text-[#86868b] shadow-2xs">
-            {isMac ? '⌘K' : 'Ctrl+K'}
-          </kbd>
+          <span className="text-[10px] text-[#818cf8] font-mono uppercase tracking-wider font-bold">TOOL:</span>
+          <span>{activeTool ? activeTool.name : 'Shader Gradient Editor'}</span>
+          <ChevronsUpDown className="w-3.5 h-3.5 text-[#8f94a8]" />
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          className="p-1.5 rounded-full text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer hidden md:flex"
+          title="View all 17 studio tools"
+        >
+          <Info className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Right Actions */}
-      <div className="flex items-center gap-2">
+      {/* Right: Actions & Export */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {view === 'tool' ? (
           <>
+            {/* Custom Tool Actions if passed */}
             {toolActions}
 
+            {/* Undo / Redo */}
+            {onUndo && onRedo && (
+              <div className="hidden sm:flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-[#23242c] border border-[#2e303b]">
+                <button
+                  type="button"
+                  disabled={!canUndo}
+                  onClick={onUndo}
+                  title="Undo (⌘Z)"
+                  className="p-1.5 rounded-full text-[#f2f2f5] hover:bg-[#2e303b] disabled:opacity-25 transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  disabled={!canRedo}
+                  onClick={onRedo}
+                  title="Redo (⌘⇧Z)"
+                  className="p-1.5 rounded-full text-[#f2f2f5] hover:bg-[#2e303b] disabled:opacity-25 transition-all cursor-pointer"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Save look */}
+            {onSave && (
+              <button
+                type="button"
+                onClick={onSave}
+                className="hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-[#f2f2f5] bg-[#23242c] hover:bg-[#2a2b36] border border-[#2e303b] transition-all cursor-pointer"
+                title="Save look"
+              >
+                <Bookmark className="w-3.5 h-3.5 text-[#818cf8]" />
+                <span>Save</span>
+              </button>
+            )}
+
+            {/* Primary Export Button */}
             {onExport && (
               <button
                 type="button"
                 onClick={onExport}
-                className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
+                className="studio-btn studio-btn-primary gap-1.5 shadow-[0_0_15px_rgba(255,255,255,0.25)]"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Export</span>
+                <Download className="w-3.5 h-3.5 text-[#0e0f14]" />
+                <span>Export</span>
               </button>
             )}
           </>
@@ -115,7 +156,7 @@ export const AppleHeader: React.FC<AppleHeaderProps> = ({
               href="https://www.magicpattern.design/tools"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] hover:bg-[#f2f2f7] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-[#8f94a8] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors"
             >
               <span>Original Site</span>
               <ExternalLink className="w-3 h-3" />
@@ -126,3 +167,4 @@ export const AppleHeader: React.FC<AppleHeaderProps> = ({
     </header>
   );
 };
+

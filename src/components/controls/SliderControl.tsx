@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 interface SliderControlProps {
@@ -29,7 +28,7 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   const [localVal, setLocalVal] = useState<string>(value.toString());
 
   useEffect(() => {
-    setLocalVal(Number(value.toFixed(3)).toString());
+    setLocalVal(Number(value.toFixed(2)).toString());
   }, [value]);
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,13 +57,15 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   };
 
   // Calculate percentage for filled track
-  const percent = ((value - min) / (max - min)) * 100;
+  const percent = Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
+
+  const angleSnaps = [0, 15, 30, 45, 60, 90];
 
   return (
-    <div className={`flex flex-col gap-2 w-full ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
+    <div className={`flex flex-col gap-1.5 w-full ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between text-xs">
-        <span className="font-bold text-[#1d1d1f] tracking-wide uppercase text-[10px]">{label}</span>
-        <div className="flex items-center gap-0.5 font-mono text-[11px] text-[#86868b]">
+        <span className="font-bold text-[#8f94a8] tracking-wider uppercase text-[10px]">{label}</span>
+        <div className="flex items-center gap-0.5 font-mono text-[11px] text-[#8f94a8]">
           <input
             type="number"
             value={localVal}
@@ -73,19 +74,22 @@ export const SliderControl: React.FC<SliderControlProps> = ({
             step={step}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            className="w-12 bg-transparent text-right outline-none text-[#1d1d1f] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-12 bg-transparent text-right outline-none text-[#f2f2f5] font-semibold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <span className="select-none">{isAngle ? '°' : unit}</span>
+          <span className="select-none text-[#686c82]">{isAngle ? '°' : unit}</span>
         </div>
       </div>
-      <div className="relative flex items-center h-4 group">
-        {/* Thick Track */}
-        <div className="absolute w-full h-2 bg-[#e5e5ea] rounded-full pointer-events-none" />
-        {/* Filled Track */}
+
+      <div className="relative flex items-center h-5 group">
+        {/* Background Track */}
+        <div className="absolute w-full h-2.5 bg-[#23242c] rounded-full pointer-events-none border border-[#2e303b]" />
+        
+        {/* Filled Gradient Track */}
         <div 
-          className="absolute h-2 bg-[#0071e3] rounded-full pointer-events-none" 
-          style={{ width: `${Math.max(4, percent)}%` }}
+          className="absolute h-2.5 bg-gradient-to-r from-[#6268f8] to-[#818cf8] rounded-full pointer-events-none shadow-[0_0_8px_rgba(98,104,248,0.3)]" 
+          style={{ width: `${percent}%` }}
         />
+
         <input
           type="range"
           min={min}
@@ -95,14 +99,39 @@ export const SliderControl: React.FC<SliderControlProps> = ({
           onChange={handleSliderChange}
           onMouseUp={() => onChangeEnd && onChangeEnd(value)}
           onTouchEnd={() => onChangeEnd && onChangeEnd(value)}
-          className="absolute w-full h-full opacity-0 cursor-pointer"
+          className="absolute w-full h-full opacity-0 cursor-pointer z-10"
         />
-        {/* Thumb */}
+
+        {/* Thumb with grip lines */}
         <div 
-          className="absolute w-3 h-3 bg-white rounded-full shadow-[0_0_2px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.2)] pointer-events-none border border-[#0071e3]/20"
-          style={{ left: `calc(${percent}% - 6px)` }}
-        />
+          className="absolute w-4 h-4 bg-[#818cf8] rounded-full shadow-[0_0_10px_rgba(129,140,248,0.6)] pointer-events-none border-2 border-white flex items-center justify-center transition-transform group-hover:scale-110"
+          style={{ left: `calc(${percent}% - 8px)` }}
+        >
+          <div className="w-1 h-1 bg-white rounded-full" />
+        </div>
       </div>
+
+      {/* Angle snap labels for rotation */}
+      {isAngle && (
+        <div className="flex items-center justify-between px-0.5 pt-0.5 text-[9px] font-mono text-[#585c72]">
+          {angleSnaps.map((snap) => (
+            <button
+              key={snap}
+              type="button"
+              onClick={() => {
+                onChange(snap);
+                if (onChangeEnd) onChangeEnd(snap);
+              }}
+              className={`hover:text-[#f2f2f5] transition-colors cursor-pointer ${
+                Math.round(value) === snap ? 'text-[#818cf8] font-bold' : ''
+              }`}
+            >
+              {snap}°
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
+

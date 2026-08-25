@@ -90,22 +90,22 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md bg-[#16171d] rounded-2xl shadow-2xl border border-[#2e303b] overflow-hidden flex flex-col text-[#f2f2f5]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#23242c]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#6268f8]/15 text-[#818cf8] flex items-center justify-center">
               <Film className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Export Video Animation</h3>
-              <p className="text-xs text-slate-500">Render loop timeline as WebM or MP4</p>
+              <h3 className="text-sm font-semibold text-[#f2f2f5]">Export Video Animation</h3>
+              <p className="text-xs text-[#8f94a8]">Render loop timeline as WebM or MP4</p>
             </div>
           </div>
           <button
             onClick={isExporting ? handleCancel : onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -115,7 +115,7 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
         <div className="p-6 flex flex-col gap-5">
           {/* Format selection */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-semibold text-[#8f94a8]">
               Video Format
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -128,10 +128,10 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
                   type="button"
                   disabled={isExporting}
                   onClick={() => setFormat(item.fmt as 'webm' | 'mp4')}
-                  className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                  className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                     format === item.fmt
-                      ? 'border-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/20'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                      ? 'border-[#6268f8] bg-[#6268f8]/15 text-[#818cf8] ring-2 ring-[#6268f8]/30'
+                      : 'border-[#2e303b] bg-[#1a1b24] text-[#8f94a8] hover:text-[#f2f2f5] hover:border-[#3d4050]'
                   }`}
                 >
                   {item.label}
@@ -143,7 +143,7 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
           {/* FPS & Scale */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-[#8f94a8]">
                 Frame Rate
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -153,10 +153,10 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
                     type="button"
                     disabled={isExporting}
                     onClick={() => setFps(f)}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-semibold ${
+                    className={`py-1.5 px-2 rounded-xl border text-xs font-semibold cursor-pointer ${
                       fps === f
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        ? 'border-[#6268f8] bg-[#6268f8]/15 text-[#818cf8] ring-2 ring-[#6268f8]/30'
+                        : 'border-[#2e303b] bg-[#1a1b24] text-[#8f94a8] hover:text-[#f2f2f5]'
                     }`}
                   >
                     {f} FPS
@@ -166,7 +166,7 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-semibold text-[#8f94a8]">
                 Resolution Scale
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -179,10 +179,10 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
                     type="button"
                     disabled={isExporting}
                     onClick={() => setScale(item.s)}
-                    className={`py-1.5 px-2 rounded-lg border text-xs font-semibold ${
+                    className={`py-1.5 px-2 rounded-xl border text-xs font-semibold cursor-pointer ${
                       scale === item.s
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
+                        ? 'border-[#6268f8] bg-[#6268f8]/15 text-[#818cf8] ring-2 ring-[#6268f8]/30'
+                        : 'border-[#2e303b] bg-[#1a1b24] text-[#8f94a8] hover:text-[#f2f2f5]'
                     }`}
                   >
                     {item.l}
@@ -192,55 +192,60 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
             </div>
           </div>
 
-          <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/60 text-xs flex justify-between">
-            <span className="text-slate-500">Duration: <strong className="text-slate-800 dark:text-slate-200">{project.duration}s</strong></span>
-            <span className="text-slate-500">Output: <strong className="text-slate-800 dark:text-slate-200">{targetWidth} × {targetHeight}</strong></span>
+          {/* Details Box */}
+          <div className="p-3 bg-[#1a1b24] border border-[#2e303b] rounded-xl flex items-center justify-between text-xs text-[#8f94a8]">
+            <span>Total Duration:</span>
+            <span className="font-mono font-semibold text-[#f2f2f5]">
+              {project.duration.toFixed(1)}s ({Math.round(project.duration * fps)} frames @ {targetWidth}×{targetHeight}px)
+            </span>
           </div>
 
-          {errorMsg && (
-            <div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 rounded-xl text-xs">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {/* Progress bar during export */}
+          {/* Progress Bar (during export) */}
           {isExporting && (
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
-                <span>Rendering frames...</span>
-                <span>{progress}%</span>
+            <div className="flex flex-col gap-2 p-3 bg-[#1a1b24] rounded-xl border border-[#2e303b]">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-[#818cf8] animate-pulse">
+                  Rendering WebGL Frames...
+                </span>
+                <span className="font-mono font-bold text-[#f2f2f5]">{progress}%</span>
               </div>
-              <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-[#23242c] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-indigo-600 transition-all duration-150 rounded-full"
+                  className="h-full bg-gradient-to-r from-[#6268f8] to-[#818cf8] transition-all duration-150"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Action buttons */}
-          <div className="flex gap-2 pt-2">
-            {isExporting ? (
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full py-3 px-4 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <span>Cancel Export</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleStartExport}
-                className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export {format.toUpperCase()} Video</span>
-              </button>
-            )}
-          </div>
+          {errorMsg && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-[#23242c] bg-[#1a1b24]">
+          <button
+            type="button"
+            onClick={isExporting ? handleCancel : onClose}
+            className="flex-1 py-2 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-semibold text-[#f2f2f5] transition-all cursor-pointer"
+          >
+            {isExporting ? 'Cancel Export' : 'Close'}
+          </button>
+
+          {!isExporting && (
+            <button
+              type="button"
+              onClick={handleStartExport}
+              className="flex-1 py-2 px-4 rounded-xl bg-white hover:bg-[#e5e5ea] text-xs font-semibold text-[#0e0f14] flex items-center justify-center gap-2 transition-all shadow-[0_0_12px_rgba(255,255,255,0.2)] cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Render Video</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
