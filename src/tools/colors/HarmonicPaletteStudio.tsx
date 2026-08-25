@@ -119,48 +119,102 @@ export const HarmonicPaletteStudio: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
-  // Algorithm to generate harmonic palette based on mode
-  const generatePalette = () => {
-    const lockedFirst = colors.find((c) => c.isLocked)?.hex;
-    const baseHex = lockedFirst || getRandomHex();
-    const baseHsl = hexToHsl(baseHex);
+  // Algorithm to generate harmonic palette based on mode (with dynamic variations on every press)
+  const generatePalette = (forcedMode?: HarmonyMode) => {
+    const activeMode = forcedMode || harmony;
+    const lockedColors = colors.filter((c) => c.isLocked);
 
-    const offsets: Record<HarmonyMode, number[]> = {
-      auto: [0, 35, 180, 215, 60, 290, 120, 240],
-      mono: [0, 0, 0, 0, 0, 0, 0, 0],
-      analogous: [0, 25, 50, -25, -50, 75, -75, 100],
-      complementary: [0, 180, 15, 195, 30, 210, -15, 165],
-      split: [0, 150, 210, 30, 180, 120, 240, 60],
-      triadic: [0, 120, 240, 30, 150, 270, 60, 180],
-      tetradic: [0, 90, 180, 270, 45, 135, 225, 315]
-    };
+    // Pick base HSL from one of the locked colors, or generate a fresh vibrant random anchor
+    let baseHsl: { h: number; s: number; l: number };
+    if (lockedColors.length > 0) {
+      // Use locked color as anchor
+      const anchor = lockedColors[Math.floor(Math.random() * lockedColors.length)].hex;
+      baseHsl = hexToHsl(anchor);
+    } else {
+      baseHsl = {
+        h: Math.floor(Math.random() * 360),
+        s: 0.5 + Math.random() * 0.45,
+        l: 0.35 + Math.random() * 0.4
+      };
+    }
 
-    const currentOffsets = offsets[harmony];
+    // Select active harmony rule (if 'auto', randomly pick an aesthetic rule)
+    const effectiveHarmony: Exclude<HarmonyMode, 'auto'> =
+      activeMode === 'auto'
+        ? (['analogous', 'complementary', 'split', 'triadic', 'tetradic', 'mono'][
+            Math.floor(Math.random() * 6)
+          ] as any)
+        : activeMode;
 
     const nextColors = colors.map((col, idx) => {
       if (col.isLocked) return col;
 
-      if (harmony === 'mono') {
-        const lumSteps = [0.9, 0.75, 0.55, 0.35, 0.18, 0.85, 0.65, 0.45];
-        return {
-          ...col,
-          hex: hslToHex(baseHsl.h, baseHsl.s * 0.7, lumSteps[idx % lumSteps.length])
-        };
-      } else {
-        const offset = currentOffsets[idx % currentOffsets.length];
-        const newH = (baseHsl.h + offset + 360) % 360;
-        const sat = Math.max(0.35, Math.min(0.9, baseHsl.s + (idx % 2 === 0 ? 0.1 : -0.1)));
-        const lum = Math.max(0.2, Math.min(0.85, 0.25 + ((idx * 0.18) % 0.6)));
-        return {
-          ...col,
-          hex: hslToHex(newH, sat, lum)
-        };
+      let h: number = baseHsl.h;
+      let s: number = baseHsl.s;
+      let l: number = baseHsl.l;
+
+      // Dynamic jitter for fresh variations on every generation press
+      const jitterH = (Math.random() - 0.5) * 24;
+      const randSat = 0.45 + Math.random() * 0.5;
+      const randLum = 0.25 + Math.random() * 0.6;
+
+      switch (effectiveHarmony) {
+        case 'mono': {
+          h = (baseHsl.h + (Math.random() - 0.5) * 10 + 360) % 360;
+          s = Math.max(0.15, Math.min(0.95, baseHsl.s + (Math.random() - 0.5) * 0.25));
+          const stepL = (idx + 1) / (colors.length + 1);
+          l = Math.max(0.12, Math.min(0.92, stepL + (Math.random() - 0.5) * 0.18));
+          break;
+        }
+        case 'analogous': {
+          const span = 70;
+          const offset = ((idx - colors.length / 2) * (span / colors.length)) + jitterH;
+          h = (baseHsl.h + offset + 360) % 360;
+          s = Math.max(0.35, Math.min(0.95, randSat));
+          l = Math.max(0.2, Math.min(0.85, randLum));
+          break;
+        }
+        case 'complementary': {
+          const isComp = idx % 2 === 1 || Math.random() > 0.5;
+          h = (baseHsl.h + (isComp ? 180 : 0) + jitterH + 360) % 360;
+          s = Math.max(0.4, Math.min(0.95, randSat));
+          l = Math.max(0.2, Math.min(0.88, randLum));
+          break;
+        }
+        case 'split': {
+          const branch = idx % 3;
+          const angle = branch === 0 ? 0 : branch === 1 ? 150 : 210;
+          h = (baseHsl.h + angle + jitterH + 360) % 360;
+          s = Math.max(0.35, Math.min(0.95, randSat));
+          l = Math.max(0.2, Math.min(0.88, randLum));
+          break;
+        }
+        case 'triadic': {
+          const angle = (idx % 3) * 120;
+          h = (baseHsl.h + angle + jitterH + 360) % 360;
+          s = Math.max(0.4, Math.min(0.95, randSat));
+          l = Math.max(0.25, Math.min(0.85, randLum));
+          break;
+        }
+        case 'tetradic': {
+          const angle = (idx % 4) * 90;
+          h = (baseHsl.h + angle + jitterH + 360) % 360;
+          s = Math.max(0.4, Math.min(0.95, randSat));
+          l = Math.max(0.25, Math.min(0.85, randLum));
+          break;
+        }
       }
+
+      return {
+        ...col,
+        hex: hslToHex(h, s, l)
+      };
     });
 
     pushState(nextColors);
     confetti({ particleCount: 20, spread: 40, origin: { y: 0.4 } });
   };
+
 
   const toggleLock = (id: string) => {
     const next = colors.map((c) => (c.id === id ? { ...c, isLocked: !c.isLocked } : c));
@@ -267,8 +321,9 @@ export const HarmonicPaletteStudio: React.FC = () => {
               type="button"
               onClick={() => {
                 setHarmony(item.id);
-                generatePalette();
+                generatePalette(item.id);
               }}
+
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 harmony === item.id
                   ? 'bg-white text-black shadow-md'
@@ -285,7 +340,7 @@ export const HarmonicPaletteStudio: React.FC = () => {
           {/* Generate Palette Spacebar button */}
           <button
             type="button"
-            onClick={generatePalette}
+            onClick={() => generatePalette()}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-neutral-200 text-black text-xs font-bold transition-all shadow-md cursor-pointer transform hover:scale-[1.02]"
             title="Generate new palette (Spacebar)"
           >
@@ -295,6 +350,7 @@ export const HarmonicPaletteStudio: React.FC = () => {
               SPACEBAR
             </kbd>
           </button>
+
 
           {/* Save Button */}
           <button
@@ -649,11 +705,8 @@ function rgbToHex(r: number, g: number, b: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-function getRandomHex(): string {
-  return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
-}
-
 function hexToHsl(hex: string) {
+
   let { r, g, b } = hexToRgb(hex);
   r /= 255;
   g /= 255;
