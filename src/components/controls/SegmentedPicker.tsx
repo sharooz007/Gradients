@@ -23,7 +23,7 @@ export function SegmentedPicker<T extends string | number>({
 }: SegmentedPickerProps<T>) {
   return (
     <div
-      className={`inline-flex bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700/60 ${
+      className={`inline-flex bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg border border-[#e5e5ea] ${
         fullWidth ? 'w-full' : ''
       }`}
     >
@@ -38,8 +38,8 @@ export function SegmentedPicker<T extends string | number>({
               size === 'sm' ? 'py-1 px-2 text-xs' : 'py-1.5 px-3 text-xs'
             } ${
               isSelected
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                ? 'bg-white text-slate-900 dark:text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] font-semibold'
+                : 'text-[#86868b] hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             {opt.icon && <span className="opacity-80">{opt.icon}</span>}

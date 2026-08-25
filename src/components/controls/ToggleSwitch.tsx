@@ -23,8 +23,8 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
           isSm ? 'w-8 h-4.5 p-0.5' : 'w-10 h-5.5 p-0.5'
         } ${
           checked
-            ? 'bg-indigo-600 dark:bg-indigo-500'
-            : 'bg-slate-300 dark:bg-slate-700'
+            ? 'bg-[#34c759]'
+            : 'bg-[#e5e5ea]'
         }`}
       >
         <div
@@ -40,7 +40,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
         />
       </div>
       {label && (
-        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-[#1d1d1f]">
           {label}
         </span>
       )}

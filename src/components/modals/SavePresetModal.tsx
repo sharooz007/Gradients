@@ -78,7 +78,7 @@ export const SavePresetModal: React.FC<SavePresetModalProps> = ({
 
         <form onSubmit={handleSave} className="p-6 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
               Preset Name
             </label>
             <input
@@ -93,7 +93,7 @@ export const SavePresetModal: React.FC<SavePresetModalProps> = ({
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Preset JSON
               </label>
               <button

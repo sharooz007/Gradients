@@ -121,7 +121,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onSelectTool }) => {
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-medium text-[#86868b] uppercase tracking-wider">
+                        <span className="text-[11px] font-medium text-[#86868b]">
                           {tool.categoryName}
                         </span>
                         <ArrowUpRight className="w-4 h-4 text-[#86868b] group-hover:text-[#0071e3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />

@@ -100,7 +100,7 @@ export const WaveGeneratorStudio: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Waves className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Layered Wave Controls
             </span>
           </div>
@@ -116,7 +116,7 @@ export const WaveGeneratorStudio: React.FC = () => {
 
         {/* Colors */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Layer Colors
           </label>
           <div className="flex items-center gap-2 flex-wrap">

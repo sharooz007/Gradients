@@ -133,14 +133,14 @@ export const AppleWallpaperStudio: React.FC = () => {
       <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
           <Smartphone className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
             Apple Wallpaper Controls
           </span>
         </div>
 
         {/* Presets */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Curated Styles
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -203,7 +203,7 @@ export const AppleWallpaperStudio: React.FC = () => {
 
         {/* Device Aspect */}
         <div className="flex flex-col gap-1.5 pt-2">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Target Device
           </label>
           <div className="grid grid-cols-3 gap-1.5">

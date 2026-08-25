@@ -155,7 +155,7 @@ export const ToolsGalleryModal: React.FC<ToolsGalleryModalProps> = ({
                           {tool.name}
                         </span>
                         {tool.badge && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#0071e3]/10 text-[#0071e3]">
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#0071e3]/10 text-[#0071e3]">
                             {tool.badge}
                           </span>
                         )}

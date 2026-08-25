@@ -168,7 +168,7 @@ export const GradientStudio: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Palette className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Gradient Settings
             </span>
           </div>
@@ -184,7 +184,7 @@ export const GradientStudio: React.FC = () => {
 
         {/* Gradient Type */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Gradient Type
           </label>
           <SegmentedPicker<GradientType>
@@ -215,7 +215,7 @@ export const GradientStudio: React.FC = () => {
         {type === 'radial' && (
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Shape
               </label>
               <SegmentedPicker<'circle' | 'ellipse'>
@@ -229,7 +229,7 @@ export const GradientStudio: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Center Origin
               </label>
               <SegmentedPicker<'center' | 'top left' | 'bottom right'>
@@ -248,7 +248,7 @@ export const GradientStudio: React.FC = () => {
         {/* Color Stops Manager */}
         <div className="flex flex-col gap-3 pt-2">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
               Color Stops ({stops.length}/8)
             </label>
             {stops.length < 8 && (

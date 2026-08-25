@@ -100,7 +100,7 @@ export const BlobGeneratorStudio: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Droplet className="w-4 h-4 text-pink-500" />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Organic Blob Controls
             </span>
           </div>

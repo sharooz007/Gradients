@@ -34,7 +34,7 @@ export const PolkaDotStudio: React.FC = () => {
         <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Dot className="w-5 h-5 text-[#0071e3]" />
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Polka Dot Matrix
             </span>
           </div>

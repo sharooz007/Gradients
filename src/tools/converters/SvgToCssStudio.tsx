@@ -39,13 +39,13 @@ export const SvgToCssStudio: React.FC = () => {
       <aside className="w-96 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
           <Code className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
             SVG to CSS Data-URI
           </span>
         </div>
 
         <div className="flex flex-col gap-1.5 flex-1">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Raw SVG Markup
           </label>
           <textarea
@@ -57,7 +57,7 @@ export const SvgToCssStudio: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Generated CSS Output
           </label>
           <textarea

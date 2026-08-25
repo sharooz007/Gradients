@@ -68,7 +68,7 @@ export const AppleHeader: React.FC<AppleHeaderProps> = ({
                 <span className="font-semibold text-sm text-[#1d1d1f] tracking-tight">
                   MagicPattern
                 </span>
-                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase bg-[#0071e3]/10 text-[#0071e3]">
+                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#0071e3]/10 text-[#0071e3]">
                   17 Tools
                 </span>
               </div>

@@ -61,11 +61,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   return (
     <aside className="w-72 h-full min-h-0 shrink-0 border-l border-[#e5e5ea] bg-white flex flex-col z-20 overflow-hidden select-none">
       {/* Sidebar Header */}
-      <div className="p-3.5 shrink-0 border-b border-[#e5e5ea] flex flex-col gap-2.5">
+      <div className="p-3 shrink-0 border-b border-[#e5e5ea] flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-[#0071e3]" />
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Preset Library
             </span>
           </div>
@@ -166,7 +166,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               >
                 {/* Thumbnail Swatch */}
                 <div
-                  className="w-12 h-10 rounded-lg shadow-inner shrink-0 border border-black/10 dark:border-white/10 group-hover:scale-105 transition-transform overflow-hidden relative"
+                  className="w-12 h-10 rounded-lg shadow-inner shrink-0 border border-black/10 /10 group-hover:scale-105 transition-transform overflow-hidden relative"
                   style={{ background: gradientCss }}
                 >
                   {preset.state.ditherEnabled && (

@@ -128,7 +128,7 @@ export const ExportImageModal: React.FC<ExportImageModalProps> = ({
         <div className="p-6 flex flex-col gap-5">
           {/* Format selection */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
               Image Format
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -137,7 +137,7 @@ export const ExportImageModal: React.FC<ExportImageModalProps> = ({
                   key={fmt}
                   type="button"
                   onClick={() => setFormat(fmt)}
-                  className={`py-2 px-3 rounded-xl border text-xs font-semibold uppercase transition-all ${
+                  className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
                     format === fmt
                       ? 'border-indigo-600 bg-indigo-50/80 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/20'
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
@@ -152,7 +152,7 @@ export const ExportImageModal: React.FC<ExportImageModalProps> = ({
           {/* Scale selection */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Resolution Scale
               </label>
               <span className="text-xs font-mono font-medium text-indigo-600 dark:text-indigo-400">

@@ -59,8 +59,8 @@ export const SliderControl: React.FC<SliderControlProps> = ({
   return (
     <div className={`flex flex-col gap-1.5 w-full ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between text-xs">
-        <span className="font-medium text-slate-700 dark:text-slate-300">{label}</span>
-        <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700/60 font-mono text-[11px]">
+        <span className="font-medium text-[#1d1d1f]">{label}</span>
+        <div className="flex items-center gap-0.5 font-mono text-[11px] text-[#86868b]">
           <input
             type="number"
             value={localVal}
@@ -69,9 +69,9 @@ export const SliderControl: React.FC<SliderControlProps> = ({
             step={step}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            className="w-10 bg-transparent text-right outline-none text-slate-800 dark:text-slate-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-10 bg-transparent text-right outline-none text-[#1d1d1f] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <span className="text-slate-400 select-none">{isAngle ? '°' : unit}</span>
+          <span className="text-[#86868b] select-none">{isAngle ? '°' : unit}</span>
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export const SliderControl: React.FC<SliderControlProps> = ({
           onChange={handleSliderChange}
           onMouseUp={() => onChangeEnd && onChangeEnd(value)}
           onTouchEnd={() => onChangeEnd && onChangeEnd(value)}
-          className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          className="w-full h-0.5 bg-[#e5e5ea] rounded-full appearance-none cursor-pointer"
         />
       </div>
     </div>

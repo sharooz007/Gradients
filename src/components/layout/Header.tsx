@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="absolute top-10 left-0 z-50 w-56 py-1 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 text-xs flex flex-col"
               onMouseLeave={() => setIsSizeMenuOpen(false)}
             >
-              <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-700/60">
+              <div className="px-3 py-1.5 text-[10px] font-semibold text-slate-400 border-b border-slate-100 dark:border-slate-700/60">
                 Canvas Presets
               </div>
               <div className="max-h-60 overflow-auto">

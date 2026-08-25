@@ -91,7 +91,7 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
         <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Pipette className="w-4 h-4 text-[#0071e3]" />
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Image Palette Extractor
             </span>
           </div>
@@ -168,7 +168,7 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
 
           {/* Extracted Swatches Card */}
           <div className="w-full max-w-xl p-4 bg-white rounded-2xl shadow-xl border border-[#e5e5ea] flex flex-col gap-3">
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Extracted Swatches
             </span>
             <div className="flex h-16 rounded-xl overflow-hidden shadow-xs border border-[#e5e5ea]">

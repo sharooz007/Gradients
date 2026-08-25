@@ -51,7 +51,7 @@ export const ColorTintsShadesStudio: React.FC = () => {
         <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <SunMedium className="w-4 h-4 text-[#0071e3]" />
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Tints & Shades
             </span>
           </div>
@@ -110,7 +110,7 @@ export const ColorTintsShadesStudio: React.FC = () => {
         <div className="w-full max-w-4xl flex flex-col gap-6">
           {/* 1. Tints Section */}
           <div className="p-5 bg-white rounded-2xl shadow-xl border border-[#e5e5ea] flex flex-col gap-3">
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Tints (Interpolated with Pure White #FFF)
             </span>
             <div className="flex h-20 rounded-xl overflow-hidden shadow-xs border border-[#e5e5ea]">
@@ -132,7 +132,7 @@ export const ColorTintsShadesStudio: React.FC = () => {
 
           {/* 2. Shades Section */}
           <div className="p-5 bg-white rounded-2xl shadow-xl border border-[#e5e5ea] flex flex-col gap-3">
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Shades (Interpolated with Pure Black #000)
             </span>
             <div className="flex h-20 rounded-xl overflow-hidden shadow-xs border border-[#e5e5ea]">
@@ -154,7 +154,7 @@ export const ColorTintsShadesStudio: React.FC = () => {
 
           {/* 3. Tones Section */}
           <div className="p-5 bg-white rounded-2xl shadow-xl border border-[#e5e5ea] flex flex-col gap-3">
-            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#1d1d1f]">
               Tones (Interpolated with Neutral Gray #808080)
             </span>
             <div className="flex h-20 rounded-xl overflow-hidden shadow-xs border border-[#e5e5ea]">

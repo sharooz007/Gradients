@@ -115,7 +115,7 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
         <div className="p-6 flex flex-col gap-5">
           {/* Format selection */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
               Video Format
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -143,7 +143,7 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
           {/* FPS & Scale */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Frame Rate
               </label>
               <div className="grid grid-cols-2 gap-1.5">
@@ -166,7 +166,7 @@ export const ExportVideoModal: React.FC<ExportVideoModalProps> = ({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Resolution Scale
               </label>
               <div className="grid grid-cols-2 gap-1.5">

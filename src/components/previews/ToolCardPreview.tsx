@@ -173,7 +173,7 @@ export const ToolCardPreview: React.FC<ToolCardPreviewProps> = ({ slug }) => {
               'repeating-linear-gradient(90deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 4px, transparent 4px, transparent 14px, rgba(0,0,0,0.15) 14px, rgba(0,0,0,0.15) 16px)'
           }}
         />
-        <div className="z-10 px-3 py-1 bg-white/40 backdrop-blur-md rounded-lg border border-white/60 text-[11px] font-semibold text-white tracking-wider uppercase">
+        <div className="z-10 px-3 py-1 bg-white/40 backdrop-blur-md rounded-lg border border-white/60 text-[11px] font-semibold text-white tracking-wider">
           Fluted Glass
         </div>
       </div>
@@ -378,7 +378,7 @@ export const ToolCardPreview: React.FC<ToolCardPreviewProps> = ({ slug }) => {
           <div className="w-5 h-5 rounded-full bg-teal-600 border border-white shadow-xs" />
           <div className="w-5 h-5 rounded-full bg-indigo-900 border border-white shadow-xs" />
           <div className="w-5 h-5 rounded-full bg-emerald-400 border border-white shadow-xs" />
-          <span className="ml-auto text-[8px] font-semibold text-slate-700 uppercase">Extracted</span>
+          <span className="ml-auto text-[8px] font-semibold text-slate-700">Extracted</span>
         </div>
       </div>
     );

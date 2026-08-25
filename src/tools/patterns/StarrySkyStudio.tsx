@@ -144,7 +144,7 @@ export const StarrySkyStudio: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Stars className="w-4 h-4 text-purple-500" />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
               Cosmic Sky Controls
             </span>
           </div>
