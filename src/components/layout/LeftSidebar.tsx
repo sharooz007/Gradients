@@ -726,17 +726,35 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
             <div className="flex items-center justify-between gap-2 pt-1">
               <span className="text-xs font-medium text-[#f2f2f5]">Random Seed</span>
-              <button
-                type="button"
-                onClick={onShuffleSeed}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-medium text-[#f2f2f5] transition-colors cursor-pointer shadow-xs"
-              >
-                <RotateCw className="w-3 h-3 text-[#818cf8]" />
-                <span>Shuffle ({Math.round(state.seed)})</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number"
+                  value={Number.isInteger(state.seed) ? state.seed : Number(state.seed.toFixed(2))}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) {
+                      onUpdateState({ seed: val }, true);
+                    }
+                  }}
+                  className="w-16 px-2 py-1 text-xs font-mono text-center rounded-lg bg-[#23242c] border border-[#2e303b] text-[#f2f2f5] outline-none focus:border-[#818cf8] transition-colors"
+                  placeholder="0"
+                  step="any"
+                  title="Manually enter seed number"
+                />
+                <button
+                  type="button"
+                  onClick={onShuffleSeed}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-medium text-[#f2f2f5] transition-colors cursor-pointer shadow-xs"
+                  title="Shuffle to random seed"
+                >
+                  <RotateCw className="w-3 h-3 text-[#818cf8]" />
+                  <span>Shuffle</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
     </aside>
   );
