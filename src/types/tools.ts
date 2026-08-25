@@ -1,9 +1,8 @@
 export type ToolCategory =
   | 'shaders-gradients'
   | 'patterns-textures'
-  | 'svg-shapes'
   | 'colors-palettes'
-  | 'converters-utilities';
+  | 'svg-charts';
 
 export interface ToolItem {
   id: string;
@@ -13,6 +12,6 @@ export interface ToolItem {
   categoryName: string;
   description: string;
   iconName: string;
-  badge?: 'Popular' | 'Pro' | 'New' | 'Free';
+  badge?: 'Popular' | 'New' | 'Pro' | 'Free';
   tags: string[];
 }

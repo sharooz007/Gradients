@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import type { AppMode, Preset } from './types/shader';
 import { PRESETS } from './data/presets';
+import { TOOLS_LIST } from './data/toolsList';
 import { useShaderState } from './hooks/useShaderState';
 import { useVideoTimeline } from './hooks/useVideoTimeline';
 import type { ShaderCanvasRef } from './components/canvas/ShaderCanvas';
-import { Header } from './components/layout/Header';
+import { AppleHeader } from './components/layout/AppleHeader';
+import { HomePage } from './components/layout/HomePage';
 import { LeftSidebar } from './components/layout/LeftSidebar';
 import { RightSidebar } from './components/layout/RightSidebar';
 import { PreviewArea } from './components/layout/PreviewArea';
@@ -16,47 +18,32 @@ import { ExportCodeModal } from './components/modals/ExportCodeModal';
 import { SavePresetModal } from './components/modals/SavePresetModal';
 import { ToolsGalleryModal } from './components/modals/ToolsGalleryModal';
 
-// Category 1: Shaders & Gradients
-import { GradientStudio } from './tools/shaders/GradientStudio';
-import { AppleWallpaperStudio } from './tools/shaders/AppleWallpaperStudio';
+// Shaders & Gradients Studios
 import { GodRaysStudio } from './tools/shaders/GodRaysStudio';
 import { FractalGlassStudio } from './tools/shaders/FractalGlassStudio';
+import { GradientStudio } from './tools/shaders/GradientStudio';
 
-// Category 2: Patterns & Textures
+// Patterns & Textures Studios
 import { CssPatternStudio } from './tools/patterns/CssPatternStudio';
-import { PerspectiveGridStudio } from './tools/patterns/PerspectiveGridStudio';
 import { HalftoneStudio } from './tools/patterns/HalftoneStudio';
 import { DitherStudio } from './tools/patterns/DitherStudio';
-import { DieterDotsStudio } from './tools/patterns/DieterDotsStudio';
-import { StarrySkyStudio } from './tools/patterns/StarrySkyStudio';
 import { GridBackgroundStudio } from './tools/patterns/GridBackgroundStudio';
-import { DoodleStudio } from './tools/patterns/DoodleStudio';
 
-// Category 3: SVG & Shapes
-import { WaveGeneratorStudio } from './tools/svg/WaveGeneratorStudio';
-import { BlobGeneratorStudio } from './tools/svg/BlobGeneratorStudio';
-import { ShapeGeneratorStudio } from './tools/svg/ShapeGeneratorStudio';
-import { ConfettiStudio } from './tools/svg/ConfettiStudio';
+// SVG & Charts Studios
 import { SvgChartStudio } from './tools/svg/SvgChartStudio';
 
-// Category 4: Colors & Palettes
+// Colors & Palettes Studios
 import { HarmonicPaletteStudio } from './tools/colors/HarmonicPaletteStudio';
 import { TailwindPaletteStudio } from './tools/colors/TailwindPaletteStudio';
 import { ImagePaletteExtractorStudio } from './tools/colors/ImagePaletteExtractorStudio';
 
-// Category 5: Converters
-import { SvgToCssStudio } from './tools/converters/SvgToCssStudio';
-import { SvgBase64Studio } from './tools/converters/SvgBase64Studio';
-import { ImageBase64Studio } from './tools/converters/ImageBase64Studio';
-
 export function App() {
+  const [view, setView] = useState<'home' | 'tool'>('home');
   const [activeToolId, setActiveToolId] = useState<string>('shader-background-generator');
   const [isToolsGalleryOpen, setIsToolsGalleryOpen] = useState<boolean>(false);
 
   const [mode, setMode] = useState<AppMode>('image');
   const [selectedPresetId, setSelectedPresetId] = useState<string>(PRESETS[0].id);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-  const [isCopying, setIsCopying] = useState(false);
 
   // Modals state
   const [isExportImageOpen, setIsExportImageOpen] = useState(false);
@@ -81,10 +68,6 @@ export function App() {
     setDimensions,
     updateState,
     commitState,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
     shuffleColors,
     shuffleSeed,
     randomizeAll
@@ -92,94 +75,47 @@ export function App() {
 
   // Video timeline management
   const timeline = useVideoTimeline(state);
-
   const canvasRef = useRef<ShaderCanvasRef | null>(null);
 
-  // Initialize theme
-  useEffect(() => {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setIsDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  const handleToggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      if (next) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      return next;
-    });
-  };
-
-  // Keyboard shortcut listener for Spacebar & Cmd+K
+  // Keyboard Shortcuts (⌘K for tool palette)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsToolsGalleryOpen((prev) => !prev);
-        return;
-      }
-
-      const target = e.target as HTMLElement;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
-        return;
-      }
-
-      if (e.code === 'Space' && mode === 'image' && activeToolId === 'shader-background-generator') {
-        e.preventDefault();
-        randomizeAll();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, randomizeAll, activeToolId]);
+  }, []);
 
-  // Handle preset selection
   const handleSelectPreset = (preset: Preset) => {
     setSelectedPresetId(preset.id);
     commitState(preset.state);
+    if (preset.dimensions) {
+      setDimensions(preset.dimensions);
+    }
   };
 
-  // Handle saving new preset
-  const handleSavePreset = (newPreset: Preset) => {
-    const nextPresets = [newPreset, ...customPresets];
-    setCustomPresets(nextPresets);
-    setSelectedPresetId(newPreset.id);
+  const handleSavePreset = (preset: Preset) => {
+    const updated = [...customPresets, preset];
+    setCustomPresets(updated);
+    localStorage.setItem('magic_custom_shader_presets', JSON.stringify(updated));
+    setSelectedPresetId(preset.id);
+
     try {
-      localStorage.setItem('magic_custom_shader_presets', JSON.stringify(nextPresets));
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.8 }
+      });
     } catch {
       // ignore
     }
   };
 
-  // Handle copy image to clipboard
-  const handleCopyClipboard = async () => {
-    if (!canvasRef.current || isCopying) return;
-    setIsCopying(true);
-    try {
-      const success = await canvasRef.current.copyToClipboard();
-      if (success) {
-        confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.8 }
-        });
-      }
-    } catch (err) {
-      console.error('Failed to copy canvas to clipboard:', err);
-    } finally {
-      setTimeout(() => setIsCopying(false), 2000);
-    }
-  };
-
+  const activeToolItem = TOOLS_LIST.find((t) => t.id === activeToolId);
   const activeShaderState = mode === 'video' ? timeline.effectiveState : state;
 
   // Render Studio dynamically based on active tool
@@ -237,11 +173,9 @@ export function App() {
           </>
         );
 
+      case 'mesh-gradients':
       case 'gradient-generator':
         return <GradientStudio />;
-
-      case 'iphone-13-gradient':
-        return <AppleWallpaperStudio />;
 
       case 'god-rays-generator':
         return <GodRaysStudio />;
@@ -249,50 +183,21 @@ export function App() {
       case 'fractal-glass-effect':
         return <FractalGlassStudio />;
 
-      case 'css-pattern-editor':
-      case 'polka-dot-pattern-generator':
-      case 'css-backgrounds':
-      case 'css-stripe-backgrounds':
-      case 'css-dot-backgrounds':
-      case 'css-grid-backgrounds':
-      case 'css-geometric-backgrounds':
-      case 'css-wave-backgrounds':
-        return <CssPatternStudio />;
-
-      case 'perspective-grid-generator':
-        return <PerspectiveGridStudio />;
-
       case 'halftone-generator':
       case 'cmyk-halftone':
         return <HalftoneStudio />;
 
-      case 'dither-generator':
-      case 'add-grain-to-images':
-        return <DitherStudio />;
-
-      case 'dieter-dots':
-        return <DieterDotsStudio />;
-
-      case 'starry-sky-generator':
-        return <StarrySkyStudio />;
+      case 'geometric-patterns':
+      case 'seamless-patterns':
+      case 'css-backgrounds':
+      case 'polka-dot-pattern-generator':
+        return <CssPatternStudio />;
 
       case 'grid-background-pattern-generator':
         return <GridBackgroundStudio />;
 
-      case 'doodle-backgrounds':
-        return <DoodleStudio />;
-
-      case 'wave-generator':
-        return <WaveGeneratorStudio />;
-
-      case 'blob-generator':
-        return <BlobGeneratorStudio />;
-
-      case 'shape-generator':
-        return <ShapeGeneratorStudio />;
-
-      case 'confetti-generator':
-        return <ConfettiStudio />;
+      case 'add-grain-to-images':
+        return <DitherStudio />;
 
       case 'svg-chart-generator':
         return <SvgChartStudio />;
@@ -307,95 +212,129 @@ export function App() {
       case 'extract-palette-from-image':
         return <ImagePaletteExtractorStudio />;
 
-      case 'svg-to-css':
-      case 'css-to-svg':
-        return <SvgToCssStudio />;
-
-      case 'svg-to-base64':
-      case 'base64-to-svg':
-        return <SvgBase64Studio />;
-
-      case 'image-to-base64':
-      case 'base64-to-image':
-        return <ImageBase64Studio />;
-
       default:
-        return <GradientStudio />;
+        return <HomePage onSelectTool={(id) => { setActiveToolId(id); setView('tool'); }} />;
     }
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden font-sans">
-      {/* Header */}
-      <Header
-        activeToolId={activeToolId}
-        onOpenToolsGallery={() => setIsToolsGalleryOpen(true)}
-        mode={mode}
-        onModeChange={setMode}
-        dimensions={dimensions}
-        onDimensionsChange={setDimensions}
-        canUndo={canUndo}
-        canRedo={redo !== undefined && canRedo}
-        onUndo={undo}
-        onRedo={redo}
-        onRandomize={randomizeAll}
-        onCopyClipboard={handleCopyClipboard}
-        onOpenExportImage={() => setIsExportImageOpen(true)}
-        onOpenExportVideo={() => setIsExportVideoOpen(true)}
-        onOpenExportCode={() => setIsExportCodeOpen(true)}
-        onOpenSavePreset={() => setIsSavePresetOpen(true)}
-        isDarkMode={isDarkMode}
-        onToggleTheme={handleToggleTheme}
-        isCopying={isCopying}
+    <div className="flex flex-col h-screen w-screen bg-[#f5f5f7] text-[#1d1d1f] overflow-hidden font-sans">
+      {/* Apple Light Navigation Header */}
+      <AppleHeader
+        view={view}
+        activeTool={activeToolItem}
+        onNavigateHome={() => setView('home')}
+        onOpenSearch={() => setIsToolsGalleryOpen(true)}
+        onExport={
+          view === 'tool' && activeToolId === 'shader-background-generator'
+            ? () => (mode === 'video' ? setIsExportVideoOpen(true) : setIsExportImageOpen(true))
+            : undefined
+        }
+        toolActions={
+          view === 'tool' && activeToolId === 'shader-background-generator' ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea] text-xs">
+                <button
+                  type="button"
+                  onClick={() => setMode('image')}
+                  className={`px-3 py-1 rounded-full font-medium transition-all ${
+                    mode === 'image'
+                      ? 'bg-white text-[#1d1d1f] shadow-2xs'
+                      : 'text-[#86868b] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  Image
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('video')}
+                  className={`px-3 py-1 rounded-full font-medium transition-all ${
+                    mode === 'video'
+                      ? 'bg-white text-[#1d1d1f] shadow-2xs'
+                      : 'text-[#86868b] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  Video
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={randomizeAll}
+                className="apple-pill-btn apple-pill-btn-secondary gap-1"
+                title="Randomize (Space)"
+              >
+                <span>Generate</span>
+                <kbd className="text-[10px] opacity-60">Space</kbd>
+              </button>
+            </div>
+          ) : undefined
+        }
       />
 
-      {/* Main Studio Viewport */}
-      {renderActiveToolStudio()}
+      {/* Main Content Area: Homepage vs Tool Studio */}
+      {view === 'home' ? (
+        <HomePage
+          onSelectTool={(id) => {
+            setActiveToolId(id);
+            setView('tool');
+          }}
+        />
+      ) : (
+        renderActiveToolStudio()
+      )}
 
-      {/* Tools Gallery Switcher Modal */}
+      {/* Tools Gallery Modal (⌘K Switcher) */}
       <ToolsGalleryModal
         isOpen={isToolsGalleryOpen}
         onClose={() => setIsToolsGalleryOpen(false)}
-        activeToolId={activeToolId}
-        onSelectTool={(id) => {
-          setActiveToolId(id);
-          setIsToolsGalleryOpen(false);
+        onSelectTool={(toolId) => {
+          setActiveToolId(toolId);
+          setView('tool');
         }}
+        currentToolId={activeToolId}
       />
 
-      {/* Global Shader Modals */}
-      <ExportImageModal
-        isOpen={isExportImageOpen}
-        onClose={() => setIsExportImageOpen(false)}
-        state={activeShaderState}
-        dimensions={dimensions}
-        canvasRef={canvasRef}
-      />
+      {/* Modals for Shader Studio */}
+      {isExportImageOpen && (
+        <ExportImageModal
+          isOpen={isExportImageOpen}
+          onClose={() => setIsExportImageOpen(false)}
+          state={activeShaderState}
+          dimensions={dimensions}
+          canvasRef={canvasRef}
+        />
+      )}
 
-      <ExportVideoModal
-        isOpen={isExportVideoOpen}
-        onClose={() => setIsExportVideoOpen(false)}
-        state={state}
-        project={timeline.project}
-        dimensions={dimensions}
-        canvasRef={canvasRef}
-      />
+      {isExportVideoOpen && (
+        <ExportVideoModal
+          isOpen={isExportVideoOpen}
+          onClose={() => setIsExportVideoOpen(false)}
+          state={activeShaderState}
+          project={timeline.project}
+          dimensions={dimensions}
+          canvasRef={canvasRef}
+        />
+      )}
 
-      <ExportCodeModal
-        isOpen={isExportCodeOpen}
-        onClose={() => setIsExportCodeOpen(false)}
-        state={activeShaderState}
-      />
+      {isExportCodeOpen && (
+        <ExportCodeModal
+          isOpen={isExportCodeOpen}
+          onClose={() => setIsExportCodeOpen(false)}
+          state={activeShaderState}
+        />
+      )}
 
-      <SavePresetModal
-        isOpen={isSavePresetOpen}
-        onClose={() => setIsSavePresetOpen(false)}
-        state={activeShaderState}
-        dimensions={dimensions}
-        onSavePreset={handleSavePreset}
-      />
+      {isSavePresetOpen && (
+        <SavePresetModal
+          isOpen={isSavePresetOpen}
+          onClose={() => setIsSavePresetOpen(false)}
+          state={activeShaderState}
+          dimensions={dimensions}
+          onSavePreset={handleSavePreset}
+        />
+      )}
     </div>
   );
 }
-
 export default App;

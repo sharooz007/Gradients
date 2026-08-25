@@ -1,125 +1,103 @@
 import type { ToolItem } from '../types/tools';
 
-export const ALL_TOOLS: ToolItem[] = [
+export const TOOLS_LIST: ToolItem[] = [
   // 1. Shaders & Gradients
   {
     id: 'shader-background-generator',
     slug: 'shader-background-generator',
-    name: 'Shader Gradient Editor',
+    name: 'Shader Background Generator',
     category: 'shaders-gradients',
     categoryName: 'Shaders & Gradients',
-    description: 'Generative WebGL shader gradients with wave distortion, retro dithering, film grain, and video timeline.',
+    description: 'Generate iridescent, modulated wave gradients with GLSL shaders, 2D warp, and video keyframes.',
     iconName: 'Sparkles',
     badge: 'Popular',
-    tags: ['WebGL', 'GLSL', 'Liquid', 'Mesh', 'Dither', 'Animation', 'Video']
+    tags: ['shader', 'gradient', 'glsl', 'wave', 'video', 'background']
   },
   {
-    id: 'gradient-generator',
-    slug: 'gradient-generator',
-    name: 'CSS & SVG Gradient Studio',
+    id: 'mesh-gradients',
+    slug: 'mesh-gradients',
+    name: 'Mesh Gradients',
     category: 'shaders-gradients',
     categoryName: 'Shaders & Gradients',
-    description: 'Multi-stop linear, radial, conic, and organic mesh gradient generator with angle controls and color interpolation.',
+    description: 'Interactive multi-point 2D mesh gradient generator with Gaussian blur and draggable control points.',
     iconName: 'Palette',
     badge: 'Popular',
-    tags: ['Linear', 'Radial', 'Conic', 'Mesh', 'CSS', 'SVG']
-  },
-  {
-    id: 'iphone-13-gradient',
-    slug: 'iphone-13-gradient',
-    name: 'Apple Iridescent Wallpaper Studio',
-    category: 'shaders-gradients',
-    categoryName: 'Shaders & Gradients',
-    description: 'Create iconic Apple-style iridescent liquid chrome ribbons and pastel wallpaper backgrounds.',
-    iconName: 'Smartphone',
-    badge: 'New',
-    tags: ['Apple', 'Wallpaper', 'Chrome', 'Iridescent', 'Liquid']
+    tags: ['mesh', 'gradient', 'blur', 'radial', 'vector', 'colors']
   },
   {
     id: 'god-rays-generator',
     slug: 'god-rays-generator',
-    name: 'God Rays & Sunbeam Generator',
+    name: 'God Rays Generator',
     category: 'shaders-gradients',
     categoryName: 'Shaders & Gradients',
-    description: 'Volumetric light rays, sunbeam bursts, and atmospheric glow with customizable ray decay and density.',
+    description: 'Create atmospheric volumetric light beams, sunbeam bursts, and particle dust scatter.',
     iconName: 'Sun',
-    tags: ['Volumetric', 'Sunbeams', 'Atmosphere', 'Glow', 'Rays']
+    badge: 'New',
+    tags: ['light', 'godrays', 'sunbeam', 'volumetric', 'rays', 'lighting']
   },
   {
     id: 'fractal-glass-effect',
     slug: 'fractal-glass-effect',
-    name: 'Fluted & Frosted Glass Studio',
+    name: 'Fractal Glass Effect',
     category: 'shaders-gradients',
     categoryName: 'Shaders & Gradients',
-    description: 'Refractive fluted glass ribs, frosted texture blur, and chromatic aberration distortion.',
+    description: 'Fluted vertical ribs, frosted texture blur, and chromatic refraction distortion overlays.',
     iconName: 'Layers',
-    badge: 'Pro',
-    tags: ['Glassmorphism', 'Fluted', 'Refraction', 'Frosted', 'Blur']
+    tags: ['glass', 'fluted', 'frosted', 'refraction', 'fractal', 'texture']
   },
 
   // 2. Patterns & Textures
-  {
-    id: 'css-pattern-editor',
-    slug: 'css-pattern-editor',
-    name: 'CSS Background Pattern Editor',
-    category: 'patterns-textures',
-    categoryName: 'Patterns & Textures',
-    description: '30+ seamless CSS background patterns (stripes, dots, chevron, zig-zag, checkers, crosshatch, waves).',
-    iconName: 'Grid',
-    badge: 'Popular',
-    tags: ['CSS', 'Stripes', 'Dots', 'Checkers', 'Seamless', 'Background']
-  },
-  {
-    id: 'perspective-grid-generator',
-    slug: 'perspective-grid-generator',
-    name: '3D Perspective Grid Generator',
-    category: 'patterns-textures',
-    categoryName: 'Patterns & Textures',
-    description: 'Retro 80s synthwave horizon and isometric wireframe perspective grids with animated velocity and glow.',
-    iconName: 'Box',
-    badge: 'New',
-    tags: ['3D', 'Synthwave', 'Isometric', 'Wireframe', 'Perspective']
-  },
   {
     id: 'halftone-generator',
     slug: 'halftone-generator',
     name: 'Halftone Dot Matrix Generator',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Convert photos or generate procedural halftone screens with custom dot shapes, spacing, and contrast.',
+    description: 'Screen raster halftone generator with circle, square, diamond, and line dot matrices from images or gradients.',
     iconName: 'CircleDot',
-    tags: ['Halftone', 'Print', 'Dot Matrix', 'Raster', 'Screen']
+    badge: 'Popular',
+    tags: ['halftone', 'dots', 'raster', 'print', 'retro', 'pattern']
   },
   {
     id: 'cmyk-halftone',
     slug: 'cmyk-halftone',
-    name: 'CMYK Offset Print Halftone',
+    name: 'CMYK Halftone Generator',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Simulate authentic 4-color process (Cyan, Magenta, Yellow, Black) offset printing with rosette screen angles.',
-    iconName: 'Layers',
-    tags: ['CMYK', 'Printmaking', 'Newspaper', 'Vintage', 'Offset']
+    description: 'Authentic 4-color process (Cyan, Magenta, Yellow, Key) offset printing rosette simulation.',
+    iconName: 'Printer',
+    badge: 'New',
+    tags: ['cmyk', 'print', 'offset', 'rosette', 'halftone', 'color-separation']
   },
   {
-    id: 'dither-generator',
-    slug: 'dither-generator',
-    name: 'Retro Image Dither Studio',
+    id: 'geometric-patterns',
+    slug: 'geometric-patterns',
+    name: 'Geometric Patterns Generator',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Quantize and dither images with Floyd-Steinberg, Atkinson, Bayer 4x4/8x8, and Blue Noise algorithms.',
-    iconName: 'Cpu',
-    badge: 'Popular',
-    tags: ['Dithering', 'Bayer', 'Floyd-Steinberg', 'Atkinson', '1-bit', 'Pixel']
+    description: 'Mathematical tessellations with 3D isometric cubes, equilateral triangles, hexagons, and scales.',
+    iconName: 'Boxes',
+    tags: ['geometric', 'tessellation', 'isometric', 'hexagons', 'cubes', 'svg']
   },
   {
-    id: 'dieter-dots',
-    slug: 'dieter-dots',
-    name: 'Dieter Rams Perforated Grille',
+    id: 'seamless-patterns',
+    slug: 'seamless-patterns',
+    name: 'Seamless Pattern Generator',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Minimal Braun-inspired speaker grille patterns with metallic bevels, hole spacing, and shadow depth.',
-    iconName: 'Disc',
-    tags: ['Dieter Rams', 'Braun', 'Industrial', 'Perforated', 'Speaker']
+    description: 'Infinite seamless vector pattern tiles with custom SVG motifs, repeat spacing, and jitter.',
+    iconName: 'Repeat',
+    tags: ['seamless', 'tiles', 'pattern', 'repeat', 'svg', 'background']
+  },
+  {
+    id: 'grid-background-pattern-generator',
+    slug: 'grid-background-pattern-generator',
+    name: 'Grid Background Pattern Generator',
+    category: 'patterns-textures',
+    categoryName: 'Patterns & Textures',
+    description: 'Technical engineering blueprint, millimeter graph paper, and dot matrix grids with coordinate markings.',
+    iconName: 'Grid',
+    tags: ['grid', 'blueprint', 'graph', 'paper', 'technical', 'coordinates']
   },
   {
     id: 'polka-dot-pattern-generator',
@@ -127,188 +105,92 @@ export const ALL_TOOLS: ToolItem[] = [
     name: 'Polka Dot Pattern Generator',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Custom polka dot grids with staggered hexagonal offsets, size variation, and random jitter.',
-    iconName: 'Circle',
-    tags: ['Polka Dots', 'Geometric', 'Scatter', 'Minimal']
+    description: 'Square and hexagonal staggered polka dot matrices with customizable radius, pitch, and opacity.',
+    iconName: 'Dot',
+    tags: ['polkadot', 'dots', 'staggered', 'hex', 'pattern', 'css']
   },
   {
-    id: 'grid-background-pattern-generator',
-    slug: 'grid-background-pattern-generator',
-    name: 'Technical Blueprint & Graph Paper',
+    id: 'css-backgrounds',
+    slug: 'css-backgrounds',
+    name: 'CSS Backgrounds Studio',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Engineering graph paper, millimeter grids, and technical blueprint patterns with major and minor axes.',
-    iconName: 'LayoutGrid',
-    tags: ['Blueprint', 'Graph Paper', 'Technical', 'Grid', 'Engineering']
-  },
-  {
-    id: 'starry-sky-generator',
-    slug: 'starry-sky-generator',
-    name: 'Starry Sky & Nebula Generator',
-    category: 'patterns-textures',
-    categoryName: 'Patterns & Textures',
-    description: 'Generative cosmic deep space with twinkling stars, constellation lines, and multi-color glowing nebula clouds.',
-    iconName: 'Stars',
-    tags: ['Space', 'Stars', 'Nebula', 'Cosmic', 'Night']
-  },
-  {
-    id: 'doodle-backgrounds',
-    slug: 'doodle-backgrounds',
-    name: 'Doodle Scatter Backgrounds',
-    category: 'patterns-textures',
-    categoryName: 'Patterns & Textures',
-    description: 'Playful hand-drawn geometric doodle scatters (stars, squiggles, triangles, sparks, arrows).',
-    iconName: 'Pencil',
-    tags: ['Doodles', 'Hand-drawn', 'Playful', 'Scatter', 'Geometric']
+    description: 'Collection of seamless CSS background patterns (stripes, dots, grid, geometric, waves) with 1-click CSS copy.',
+    iconName: 'Code',
+    badge: 'Popular',
+    tags: ['css', 'stripes', 'dots', 'waves', 'backgrounds', 'gradients']
   },
   {
     id: 'add-grain-to-images',
     slug: 'add-grain-to-images',
-    name: 'Film Grain Photo Overlay',
+    name: 'Add Grain to Images',
     category: 'patterns-textures',
     categoryName: 'Patterns & Textures',
-    description: 'Apply tactile 35mm film grain, analog noise, and vintage textures with customizable blend modes.',
-    iconName: 'Film',
-    tags: ['Film Grain', 'Analog', 'Vintage', 'Noise', 'Overlay']
+    description: 'Add authentic 35mm film grain and analog noise texture to photos with blend mode compositing.',
+    iconName: 'Sliders',
+    tags: ['grain', 'noise', 'film', 'texture', 'photo', 'analog']
   },
 
-  // 3. SVG & Generative Shapes
-  {
-    id: 'wave-generator',
-    slug: 'wave-generator',
-    name: 'SVG Layered Waves Generator',
-    category: 'svg-shapes',
-    categoryName: 'SVG & Shapes',
-    description: 'Multi-layer organic SVG wave dividers with customizable amplitude, wavelength, complexity, and gradient fills.',
-    iconName: 'Waves',
-    badge: 'Popular',
-    tags: ['SVG', 'Waves', 'Divider', 'Footer', 'Hero', 'Gradient']
-  },
-  {
-    id: 'blob-generator',
-    slug: 'blob-generator',
-    name: 'Organic SVG Blob Generator',
-    category: 'svg-shapes',
-    categoryName: 'SVG & Shapes',
-    description: 'Generate smooth morphing organic SVG blobs with control point counts, randomness, and linear/radial fills.',
-    iconName: 'Droplet',
-    badge: 'Popular',
-    tags: ['Blob', 'Organic', 'SVG', 'Vector', 'Morph']
-  },
-  {
-    id: 'shape-generator',
-    slug: 'shape-generator',
-    name: 'Geometric Shape & Starburst Badge',
-    category: 'svg-shapes',
-    categoryName: 'SVG & Shapes',
-    description: 'Create starburst badges, geometric polygons, ticket shapes, and notched promo stickers with custom spikes.',
-    iconName: 'Hexagon',
-    tags: ['Starburst', 'Badge', 'Polygon', 'Sticker', 'Sale']
-  },
-  {
-    id: 'confetti-generator',
-    slug: 'confetti-generator',
-    name: 'Festive Confetti Blast Generator',
-    category: 'svg-shapes',
-    categoryName: 'SVG & Shapes',
-    description: 'Generate scattered confetti particles with ribbons, circles, squares, gravity, and particle spread.',
-    iconName: 'PartyPopper',
-    tags: ['Confetti', 'Party', 'Ribbons', 'Celebration', 'Physics']
-  },
+  // 3. SVG & Charts
   {
     id: 'svg-chart-generator',
     slug: 'svg-chart-generator',
-    name: 'SVG Sparkline & Trend Chart',
-    category: 'svg-shapes',
-    categoryName: 'SVG & Shapes',
+    name: 'SVG Chart Generator',
+    category: 'svg-charts',
+    categoryName: 'SVG & Charts',
     description: 'Clean SVG sparklines, trend graphs, area charts, and bar charts with smooth bezier curve interpolation.',
     iconName: 'TrendingUp',
-    tags: ['Charts', 'Sparkline', 'Trend', 'Graph', 'Analytics', 'SVG']
+    tags: ['chart', 'svg', 'sparkline', 'graph', 'trend', 'vector']
   },
 
-  // 4. Color & Palette Tools
+  // 4. Color & Palettes
   {
     id: 'color-palette-generator',
     slug: 'color-palette-generator',
-    name: 'Harmonic Color Palette Studio',
+    name: 'Color Palette Generator',
     category: 'colors-palettes',
     categoryName: 'Color & Palettes',
-    description: 'Generate harmonic palettes using Complementary, Analogous, Triadic, Tetradic, and Monochromatic color theory rules.',
-    iconName: 'Palette',
+    description: 'Harmonic color palette generator with spacebar shuffle, color locking, and contrast check.',
+    iconName: 'Sparkle',
     badge: 'Popular',
-    tags: ['Color Theory', 'Harmonies', 'Hex', 'Palette', 'Export']
-  },
-  {
-    id: 'tailwind-color-palette-generator',
-    slug: 'tailwind-color-palette-generator',
-    name: 'Tailwind CSS Palette Studio',
-    category: 'colors-palettes',
-    categoryName: 'Color & Palettes',
-    description: 'Generate complete 50 to 950 color scale shade objects ready to drop directly into tailwind.config.js.',
-    iconName: 'PaintBucket',
-    badge: 'Pro',
-    tags: ['Tailwind', 'Shades', '50-950', 'Theme', 'Frontend']
+    tags: ['palette', 'harmony', 'colors', 'hsl', 'contrast', 'generator']
   },
   {
     id: 'color-tints-shades-generator',
     slug: 'color-tints-shades-generator',
-    name: 'Color Tints, Shades & Tones',
+    name: 'Color Tints & Shades Generator',
     category: 'colors-palettes',
     categoryName: 'Color & Palettes',
-    description: 'Generate calibrated lightness ramps (tints with white), darkness ramps (shades with black), and tones (with gray).',
-    iconName: 'Sun',
-    tags: ['Tints', 'Shades', 'Tones', 'Ramp', 'Luminance']
+    description: 'Calculate smooth lightness tints (with white), darkness shades (with black), and neutral tones.',
+    iconName: 'SunMedium',
+    tags: ['tints', 'shades', 'tones', 'color', 'ramp', 'lightness']
+  },
+  {
+    id: 'tailwind-color-palette-generator',
+    slug: 'tailwind-color-palette-generator',
+    name: 'Tailwind Color Palette Generator',
+    category: 'colors-palettes',
+    categoryName: 'Color & Palettes',
+    description: 'Generate full 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950 color scale objects for Tailwind.',
+    iconName: 'Wand2',
+    tags: ['tailwind', 'palette', '50-950', 'shades', 'config', 'css']
   },
   {
     id: 'extract-palette-from-image',
     slug: 'extract-palette-from-image',
-    name: 'Image Color Palette Extractor',
+    name: 'Extract Palette from Image',
     category: 'colors-palettes',
     categoryName: 'Color & Palettes',
-    description: 'Upload any image to extract dominant, vibrant, muted, dark, and pastel color palettes with instant copy.',
-    iconName: 'Image',
-    tags: ['Extraction', 'Image', 'Sampling', 'Color Pick', 'Hex']
-  },
-
-  // 5. Converters & Developer Utilities
-  {
-    id: 'svg-to-css',
-    slug: 'svg-to-css',
-    name: 'SVG to CSS Data-URI Converter',
-    category: 'converters-utilities',
-    categoryName: 'Converters & Utilities',
-    description: 'Convert raw SVG markup into ultra-clean, URL-encoded CSS background data URIs.',
-    iconName: 'Code',
-    tags: ['SVG', 'CSS', 'Data URI', 'Converter', 'Background']
-  },
-  {
-    id: 'svg-to-base64',
-    slug: 'svg-to-base64',
-    name: 'SVG ↔ Base64 Dual Converter',
-    category: 'converters-utilities',
-    categoryName: 'Converters & Utilities',
-    description: 'Lossless two-way conversion between vector SVG code and Base64 encoded strings with live vector preview.',
-    iconName: 'Binary',
-    tags: ['SVG', 'Base64', 'Encoder', 'Decoder']
-  },
-  {
-    id: 'image-to-base64',
-    slug: 'image-to-base64',
-    name: 'Image ↔ Base64 Dual Converter',
-    category: 'converters-utilities',
-    categoryName: 'Converters & Utilities',
-    description: 'Convert PNG/JPG/WebP image files into Base64 data strings and decode Base64 strings back to image files.',
-    iconName: 'FileCode',
-    tags: ['Base64', 'Image', 'PNG', 'JPG', 'Data URI']
-  },
-  {
-    id: 'css-to-svg',
-    slug: 'css-to-svg',
-    name: 'CSS to SVG Asset Converter',
-    category: 'converters-utilities',
-    categoryName: 'Converters & Utilities',
-    description: 'Convert CSS gradient and pattern declarations into standalone downloadable SVG vector assets.',
-    iconName: 'FileSpreadsheet',
-    tags: ['CSS', 'SVG', 'Vector', 'Asset', 'Export']
+    description: 'Sample photos and extract dominant, vibrant, muted, dark, and pastel color ramps with hex copy.',
+    iconName: 'Pipette',
+    tags: ['extract', 'image', 'colors', 'quantize', 'photo', 'sample']
   }
+];
+
+export const CATEGORIES = [
+  { id: 'all', name: 'All Tools', count: 17 },
+  { id: 'shaders-gradients', name: 'Shaders & Gradients', count: 4 },
+  { id: 'patterns-textures', name: 'Patterns & Textures', count: 8 },
+  { id: 'colors-palettes', name: 'Color & Palettes', count: 4 },
+  { id: 'svg-charts', name: 'SVG & Charts', count: 1 }
 ];
