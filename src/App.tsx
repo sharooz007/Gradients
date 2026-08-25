@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import type { AppMode, Preset } from './types/shader';
+import type { AppMode, Preset, ShaderState } from './types/shader';
 import { PRESETS } from './data/presets';
 import { TOOLS_LIST } from './data/toolsList';
 import { useShaderState } from './hooks/useShaderState';
@@ -73,27 +73,62 @@ export function App() {
     setDimensions,
     updateState,
     commitState,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
     shuffleColors,
     shuffleSeed,
     randomizeAll
   } = useShaderState(PRESETS[0].state);
 
+  const [copiedClipboard, setCopiedClipboard] = useState(false);
+
+  const handleQuickCopy = async () => {
+    if (!canvasRef.current) return;
+    const ok = await canvasRef.current.copyToClipboard();
+    if (ok) {
+      setCopiedClipboard(true);
+      try {
+        confetti({
+          particleCount: 40,
+          spread: 45,
+          origin: { y: 0.8 }
+        });
+      } catch {
+        // ignore
+      }
+      setTimeout(() => setCopiedClipboard(false), 2500);
+    }
+  };
+
   // Video timeline management
   const timeline = useVideoTimeline(state);
   const canvasRef = useRef<ShaderCanvasRef | null>(null);
 
-  // Keyboard Shortcuts (⌘K for tool palette)
+  // Keyboard Shortcuts (⌘K for tool palette, Spacebar for randomize/play)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in an input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsToolsGalleryOpen((prev) => !prev);
+      } else if (e.code === 'Space') {
+        e.preventDefault();
+        if (mode === 'video') {
+          timeline.togglePlay();
+        } else {
+          randomizeAll();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [mode, randomizeAll, timeline]);
 
   const handleSelectPreset = (preset: Preset) => {
     setSelectedPresetId(preset.id);
@@ -120,6 +155,17 @@ export function App() {
     }
   };
 
+  const handleUpdateShaderState = (updates: Partial<ShaderState>, commit?: boolean) => {
+    if (mode === 'video') {
+      if (timeline.selectedKeyframeId) {
+        timeline.updateKeyframeValues(timeline.selectedKeyframeId, updates);
+      }
+      updateState(updates, commit);
+    } else {
+      updateState(updates, commit);
+    }
+  };
+
   const activeToolItem = TOOLS_LIST.find((t) => t.id === activeToolId);
   const activeShaderState = mode === 'video' ? timeline.effectiveState : state;
 
@@ -133,7 +179,20 @@ export function App() {
             <div className="flex-1 flex min-h-0 h-[calc(100vh-3.5rem)] overflow-hidden">
               <LeftSidebar
                 state={activeShaderState}
-                onUpdateState={updateState}
+                dimensions={dimensions}
+                mode={mode}
+                project={timeline.project}
+                selectedKeyframeId={timeline.selectedKeyframeId}
+                onSelectKeyframe={(id) => {
+                  timeline.setSelectedKeyframeId(id);
+                  const kf = timeline.project.keyframes.find((k) => k.id === id);
+                  if (kf) timeline.seek(kf.time);
+                }}
+                onUpdateKeyframeEasing={timeline.updateKeyframeEasing}
+                onRemoveKeyframe={timeline.removeKeyframe}
+                onChangeDuration={timeline.setDuration}
+                onUpdateState={handleUpdateShaderState}
+                onUpdateDimensions={setDimensions}
                 onShuffleColors={shuffleColors}
                 onShuffleSeed={shuffleSeed}
               />
@@ -251,13 +310,14 @@ export function App() {
         toolActions={
           view === 'tool' && activeToolId === 'shader-background-generator' ? (
             <div className="flex items-center gap-2">
+              {/* Image / Video Mode Switcher */}
               <div className="flex items-center p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea] text-xs">
                 <button
                   type="button"
                   onClick={() => setMode('image')}
-                  className={`px-3 py-1 rounded-full font-medium transition-all ${
+                  className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
                     mode === 'image'
-                      ? 'bg-white text-[#1d1d1f] shadow-2xs'
+                      ? 'bg-white text-[#1d1d1f] shadow-2xs font-semibold'
                       : 'text-[#86868b] hover:text-[#1d1d1f]'
                   }`}
                 >
@@ -266,9 +326,9 @@ export function App() {
                 <button
                   type="button"
                   onClick={() => setMode('video')}
-                  className={`px-3 py-1 rounded-full font-medium transition-all ${
+                  className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
                     mode === 'video'
-                      ? 'bg-white text-[#1d1d1f] shadow-2xs'
+                      ? 'bg-white text-[#1d1d1f] shadow-2xs font-semibold'
                       : 'text-[#86868b] hover:text-[#1d1d1f]'
                   }`}
                 >
@@ -276,14 +336,57 @@ export function App() {
                 </button>
               </div>
 
+              {/* Undo / Redo Buttons */}
+              <div className="hidden sm:flex items-center p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea]">
+                <button
+                  type="button"
+                  disabled={!canUndo}
+                  onClick={undo}
+                  title="Undo (⌘Z)"
+                  className="px-2 py-1 rounded-full text-xs font-medium text-[#1d1d1f] hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
+                >
+                  Undo
+                </button>
+                <button
+                  type="button"
+                  disabled={!canRedo}
+                  onClick={redo}
+                  title="Redo (⌘⇧Z)"
+                  className="px-2 py-1 rounded-full text-xs font-medium text-[#1d1d1f] hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
+                >
+                  Redo
+                </button>
+              </div>
+
+              {/* Quick Copy to Clipboard */}
+              <button
+                type="button"
+                onClick={handleQuickCopy}
+                className="hidden md:inline-flex apple-btn apple-btn-secondary text-xs font-medium"
+                title="Copy PNG image to clipboard for Figma/Canva"
+              >
+                <span>{copiedClipboard ? 'Copied Image!' : 'Copy'}</span>
+              </button>
+
+              {/* Code Export Button */}
+              <button
+                type="button"
+                onClick={() => setIsExportCodeOpen(true)}
+                className="hidden lg:inline-flex apple-btn apple-btn-secondary text-xs font-medium"
+                title="View React, GLSL, HTML and CSS code"
+              >
+                <span>Code</span>
+              </button>
+
+              {/* Generate / Randomize Button */}
               <button
                 type="button"
                 onClick={randomizeAll}
-                className="apple-btn apple-btn-secondary gap-1"
+                className="apple-btn apple-btn-secondary gap-1 shadow-2xs"
                 title="Randomize (Space)"
               >
-                <span>Generate</span>
-                <kbd className="text-[10px] opacity-60">Space</kbd>
+                <span>Randomize</span>
+                <kbd className="hidden sm:inline-block text-[9px] px-1 py-0.2 rounded bg-black/5 font-mono text-[#86868b]">Space</kbd>
               </button>
             </div>
           ) : undefined
