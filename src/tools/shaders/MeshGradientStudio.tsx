@@ -168,9 +168,9 @@ export const MeshGradientStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
+          <span className="text-[13px] font-semibold text-[#1d1d1f]">
             Mesh Points ({points.length}/9)
           </span>
           <div className="flex items-center gap-1">
@@ -195,7 +195,7 @@ export const MeshGradientStudio: React.FC = () => {
         </div>
 
         {/* Points Swatches Grid */}
-        <div className="p-3 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] grid grid-cols-5 gap-2">
+        <div className="p-3 border-b border-[#e5e5ea] grid grid-cols-5 gap-2">
           {points.map((p, idx) => {
             const isSelected = p.id === activePointId;
             return (
@@ -218,7 +218,7 @@ export const MeshGradientStudio: React.FC = () => {
 
         {/* Selected Point Editor Card */}
         {activePoint && (
-          <div className="p-4 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3.5">
+          <div className="p-4 border-b border-[#e5e5ea] flex flex-col gap-3.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[#1d1d1f]">
                 Point #{points.findIndex((p) => p.id === activePoint.id) + 1} Settings
@@ -290,7 +290,7 @@ export const MeshGradientStudio: React.FC = () => {
         )}
 
         {/* Global Blur Slider */}
-        <div className="p-4 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-4 border-b border-[#e5e5ea] flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs text-[#86868b]">
             <span>Blur Softness</span>
             <span className="font-mono text-[#1d1d1f]">{blurRadius}px</span>
@@ -307,7 +307,7 @@ export const MeshGradientStudio: React.FC = () => {
         </div>
 
         {/* Aspect Ratio Selector */}
-        <div className="p-4 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-4 border-b border-[#e5e5ea] flex flex-col gap-2">
           <span className="text-xs font-medium text-[#86868b]">Aspect Ratio</span>
           <div className="grid grid-cols-4 gap-1 p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea] text-xs">
             {(['16:9', '1:1', '9:16', '4:3'] as const).map((ar) => (
@@ -328,11 +328,11 @@ export const MeshGradientStudio: React.FC = () => {
         </div>
 
         {/* Export Buttons */}
-        <div className="mt-auto flex flex-col gap-2 pt-4">
+        <div className="mt-auto p-4 flex flex-col gap-2">
           <button
             type="button"
             onClick={exportPng}
-            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+            className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
           >
             <Download className="w-4 h-4" />
             <span>Export 4K PNG</span>
@@ -340,7 +340,7 @@ export const MeshGradientStudio: React.FC = () => {
           <button
             type="button"
             onClick={copyCss}
-            className="apple-pill-btn apple-pill-btn-secondary gap-1.5"
+            className="apple-btn apple-btn-secondary gap-1.5"
           >
             {isCopied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
             <span>{isCopied ? 'CSS Copied!' : 'Copy CSS Gradient'}</span>
@@ -354,7 +354,7 @@ export const MeshGradientStudio: React.FC = () => {
           ref={containerRef}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className={`relative rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea] bg-slate-900 transition-all ${
+          className={`relative rounded-lg overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#000000]/10 bg-slate-900 transition-all ${
             aspectRatio === '16:9'
               ? 'w-[720px] h-[405px]'
               : aspectRatio === '1:1'

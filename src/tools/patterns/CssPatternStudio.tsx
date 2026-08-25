@@ -67,8 +67,8 @@ export const CssPatternStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
-        <div className="flex items-center justify-between">
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Code className="w-4 h-4 text-[#0071e3]" />
             <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
@@ -78,7 +78,7 @@ export const CssPatternStudio: React.FC = () => {
         </div>
 
         {/* Pattern Selection Grid */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2">
           <span className="text-xs font-medium text-[#1d1d1f]">Pattern Types</span>
           <div className="grid grid-cols-2 gap-1.5 text-xs">
             {CSS_PATTERNS.map((p) => (
@@ -99,7 +99,7 @@ export const CssPatternStudio: React.FC = () => {
         </div>
 
         {/* Scale Slider */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs text-[#86868b]">
             <span>Pattern Scale</span>
             <span className="font-mono text-[#1d1d1f]">{size}px</span>
@@ -115,7 +115,7 @@ export const CssPatternStudio: React.FC = () => {
         </div>
 
         {/* 2-Color Palette */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] grid grid-cols-2 gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] grid grid-cols-2 gap-2">
           <div className="flex flex-col gap-1">
             <span className="text-[11px] text-[#86868b]">Foreground</span>
             <div className="flex items-center gap-2">
@@ -143,11 +143,11 @@ export const CssPatternStudio: React.FC = () => {
         </div>
 
         {/* Export Action */}
-        <div className="mt-auto pt-4 flex flex-col gap-2">
+        <div className="mt-auto p-4 flex flex-col gap-2">
           <button
             type="button"
             onClick={copyCss}
-            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+            className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
           >
             {isCopied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
             <span>{isCopied ? 'CSS Code Copied!' : 'Copy CSS Background'}</span>

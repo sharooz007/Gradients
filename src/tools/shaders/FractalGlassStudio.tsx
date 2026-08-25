@@ -138,8 +138,8 @@ export const FractalGlassStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
-        <div className="flex items-center justify-between">
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-[#0071e3]" />
             <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
@@ -149,7 +149,7 @@ export const FractalGlassStudio: React.FC = () => {
         </div>
 
         {/* Style Mode Switcher */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2">
           <span className="text-xs font-medium text-[#1d1d1f]">Glass Texture Mode</span>
           <div className="grid grid-cols-3 gap-1 p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea] text-xs">
             {(['fluted', 'frosted', 'fractal'] as const).map((mode) => (
@@ -170,7 +170,7 @@ export const FractalGlassStudio: React.FC = () => {
         </div>
 
         {/* Glass Parameters */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3.5">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-3.5">
           {styleMode === 'fluted' && (
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs text-[#86868b]">
@@ -240,9 +240,9 @@ export const FractalGlassStudio: React.FC = () => {
         </div>
 
         {/* Custom Image Upload */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2.5">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2.5">
           <span className="text-xs font-medium text-[#1d1d1f]">Backdrop Source</span>
-          <label className="apple-pill-btn apple-pill-btn-secondary gap-1.5 cursor-pointer">
+          <label className="apple-btn apple-btn-secondary gap-1.5 cursor-pointer">
             <Upload className="w-3.5 h-3.5" />
             <span>{uploadedImage ? 'Replace Image' : 'Upload Custom Image'}</span>
             <input
@@ -264,11 +264,11 @@ export const FractalGlassStudio: React.FC = () => {
         </div>
 
         {/* Export Action */}
-        <div className="mt-auto pt-4 flex flex-col gap-2">
+        <div className="mt-auto p-4 flex flex-col gap-2">
           <button
             type="button"
             onClick={exportPng}
-            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+            className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
           >
             <Download className="w-4 h-4" />
             <span>Export Glass PNG</span>
@@ -278,7 +278,7 @@ export const FractalGlassStudio: React.FC = () => {
 
       {/* Main Canvas Area */}
       <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-hidden select-none">
-        <div className="relative w-[720px] h-[450px] rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea] bg-slate-900">
+        <div className="relative w-[720px] h-[450px] rounded-lg overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#000000]/10 bg-slate-900">
           <canvas
             ref={canvasRef}
             width={1440}

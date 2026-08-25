@@ -30,8 +30,8 @@ export const PolkaDotStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
-        <div className="flex items-center justify-between">
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Dot className="w-5 h-5 text-[#0071e3]" />
             <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
@@ -41,7 +41,7 @@ export const PolkaDotStudio: React.FC = () => {
         </div>
 
         {/* Layout Mode */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2">
           <span className="text-xs font-medium text-[#1d1d1f]">Grid Arrangement</span>
           <div className="grid grid-cols-2 gap-1 p-0.5 rounded-full bg-[#f2f2f7] border border-[#e5e5ea] text-xs">
             <button
@@ -70,7 +70,7 @@ export const PolkaDotStudio: React.FC = () => {
         </div>
 
         {/* Size & Pitch Controls */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3.5">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-3.5">
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between text-xs text-[#86868b]">
               <span>Dot Radius</span>
@@ -119,7 +119,7 @@ export const PolkaDotStudio: React.FC = () => {
         </div>
 
         {/* Colors Panel */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] grid grid-cols-2 gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] grid grid-cols-2 gap-2">
           <div className="flex flex-col gap-1">
             <span className="text-[11px] text-[#86868b]">Dot Color</span>
             <div className="flex items-center gap-2">
@@ -147,11 +147,11 @@ export const PolkaDotStudio: React.FC = () => {
         </div>
 
         {/* Export Action */}
-        <div className="mt-auto pt-4 flex flex-col gap-2">
+        <div className="mt-auto p-4 flex flex-col gap-2">
           <button
             type="button"
             onClick={copyCss}
-            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+            className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
           >
             {isCopied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
             <span>{isCopied ? 'CSS Code Copied!' : 'Copy CSS Background'}</span>

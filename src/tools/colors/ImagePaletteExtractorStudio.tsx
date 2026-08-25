@@ -87,8 +87,8 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
-        <div className="flex items-center justify-between">
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Pipette className="w-4 h-4 text-[#0071e3]" />
             <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
@@ -98,9 +98,9 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
         </div>
 
         {/* Upload Photo Button */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2.5">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2.5">
           <span className="text-xs font-medium text-[#1d1d1f]">Image Source</span>
-          <label className="apple-pill-btn apple-pill-btn-primary gap-1.5 cursor-pointer">
+          <label className="apple-btn apple-btn-primary gap-1.5 cursor-pointer">
             <Upload className="w-4 h-4" />
             <span>{imageSrc ? 'Replace Image' : 'Upload Image to Extract'}</span>
             <input
@@ -113,7 +113,7 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
         </div>
 
         {/* Sample Count Slider */}
-        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+        <div className="p-3.5 border-b border-[#e5e5ea] flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs text-[#86868b]">
             <span>Extracted Color Count</span>
             <span className="font-mono text-[#1d1d1f]">{sampleCount} swatches</span>
@@ -133,11 +133,11 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
         </div>
 
         {/* Export Action */}
-        <div className="mt-auto pt-4 flex flex-col gap-2">
+        <div className="mt-auto p-4 flex flex-col gap-2">
           <button
             type="button"
             onClick={copyJson}
-            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+            className="apple-btn apple-btn-primary gap-1.5 shadow-2xs"
           >
             {copiedHex === 'ALL_JSON' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
             <span>{copiedHex === 'ALL_JSON' ? 'JSON Copied!' : 'Copy Swatches JSON'}</span>
@@ -149,7 +149,7 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
       <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-y-auto custom-scrollbar select-none">
         <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
           {/* Image Display Card */}
-          <div className="relative w-full max-w-xl h-72 rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea] bg-white flex items-center justify-center">
+          <div className="relative w-full max-w-xl h-72 rounded-lg overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#000000]/10 bg-white flex items-center justify-center">
             {imageSrc ? (
               <img
                 src={imageSrc}
