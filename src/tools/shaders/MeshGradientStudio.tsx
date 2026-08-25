@@ -11,9 +11,13 @@ import {
   Palette,
   Shuffle,
   FileCode,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Bookmark,
+  BookmarkCheck,
+  FolderHeart
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+
 
 interface MeshPoint {
   id: string;
@@ -220,6 +224,11 @@ export const MeshGradientStudio: React.FC = () => {
   const [customPresets, setCustomPresets] = useState<MeshPreset[]>([]);
   const [copiedCss, setCopiedCss] = useState(false);
 
+  // Global Saved Palettes Library
+  const [globalPalettes, setGlobalPalettes] = useState<{ id: string; name: string; colors: string[] }[]>([]);
+  const [showPaletteDrawer, setShowPaletteDrawer] = useState(false);
+  const [justSavedPalette, setJustSavedPalette] = useState(false);
+
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     points: true,
     activePoint: true,
@@ -241,9 +250,76 @@ export const MeshGradientStudio: React.FC = () => {
     }
   }, []);
 
+  // Load global saved palettes from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('magic_global_palettes');
+      if (saved) {
+        setGlobalPalettes(JSON.parse(saved));
+      } else {
+        const defaults = [
+          { id: 'neon-cyber', name: 'Cyber Neon', colors: ['#00f2fe', '#ff007f', '#ffe600', '#a855f7', '#0f172a'] },
+          { id: 'sunset-dusk', name: 'Sunset Dusk', colors: ['#f97316', '#ec4899', '#8b5cf6', '#3b82f6', '#0f172a'] },
+          { id: 'emerald-mint', name: 'Emerald Aura', colors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#064e3b'] },
+          { id: 'cosmic-purple', name: 'Cosmic Violet', colors: ['#1e1b4b', '#4338ca', '#818cf8', '#c084fc', '#f43f5e'] }
+        ];
+        setGlobalPalettes(defaults);
+        localStorage.setItem('magic_global_palettes', JSON.stringify(defaults));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const applySavedPalette = (paletteColors: string[]) => {
+    if (!paletteColors || paletteColors.length === 0) return;
+    const updated = points.map((p, idx) => ({
+      ...p,
+      color: paletteColors[idx % paletteColors.length]
+    }));
+    setPoints(updated);
+    confetti({ particleCount: 30, spread: 50, origin: { y: 0.6 } });
+  };
+
+  const saveCurrentMeshPalette = () => {
+    const defaultName = `Mesh Look #${globalPalettes.length + 1}`;
+    const name = prompt('Name your color palette:', defaultName);
+    if (!name) return;
+
+    const newPal = {
+      id: `palette-${Date.now()}`,
+      name: name.trim(),
+      colors: points.map((p) => p.color)
+    };
+
+    const updated = [newPal, ...globalPalettes];
+    setGlobalPalettes(updated);
+    try {
+      localStorage.setItem('magic_global_palettes', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+
+    setJustSavedPalette(true);
+    confetti({ particleCount: 35, spread: 50, origin: { y: 0.6 } });
+    setTimeout(() => setJustSavedPalette(false), 2000);
+  };
+
+  const deleteSavedPalette = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = globalPalettes.filter((p) => p.id !== id);
+    setGlobalPalettes(updated);
+    try {
+      localStorage.setItem('magic_global_palettes', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  };
+
   const toggleSection = (key: string) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
 
   // Render Mesh Gradient to Canvas
   const renderMesh = useCallback(() => {
@@ -571,7 +647,91 @@ export const MeshGradientStudio: React.FC = () => {
                   );
                 })}
               </div>
+
+              {/* Palette Library & Save Action Row */}
+              <div className="grid grid-cols-2 gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={saveCurrentMeshPalette}
+                  className="py-1.5 px-2.5 rounded-xl border border-[#2e303b] hover:border-[#818cf8] bg-[#1a1b24] hover:bg-[#23242c] text-[11px] font-medium text-[#f2f2f5] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                  title="Save current mesh colors to global palette library"
+                >
+                  {justSavedPalette ? (
+                    <>
+                      <BookmarkCheck className="w-3 h-3 text-emerald-400" />
+                      <span className="text-emerald-400 font-semibold">Saved!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="w-3 h-3 text-[#818cf8]" />
+                      <span>Save Palette</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowPaletteDrawer(!showPaletteDrawer)}
+                  className={`py-1.5 px-2.5 rounded-xl border text-[11px] font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                    showPaletteDrawer
+                      ? 'border-[#818cf8] bg-[#818cf8]/15 text-[#818cf8]'
+                      : 'border-[#2e303b] hover:border-[#3d4050] bg-[#1a1b24] hover:bg-[#23242c] text-[#8f94a8] hover:text-[#f2f2f5]'
+                  }`}
+                  title="Open Saved Palettes Library"
+                >
+                  <FolderHeart className="w-3 h-3 text-[#ec4899]" />
+                  <span>Palettes ({globalPalettes.length})</span>
+                </button>
+              </div>
+
+              {/* Expandable Saved Palettes Tray */}
+              {showPaletteDrawer && (
+                <div className="flex flex-col gap-1.5 p-2.5 rounded-xl bg-[#13141a] border border-[#2e303b] max-h-48 overflow-y-auto custom-scrollbar animate-in fade-in duration-200 shadow-inner mt-1">
+                  <div className="flex items-center justify-between pb-1 px-1 border-b border-[#23242c]">
+                    <span className="text-[10px] font-bold text-[#8f94a8] uppercase tracking-wider">
+                      Apply Saved Palette
+                    </span>
+                    <span className="text-[10px] text-[#686c82]">Click to apply</span>
+                  </div>
+
+                  {globalPalettes.length === 0 ? (
+                    <div className="py-3 text-center text-xs text-[#686c82]">
+                      No saved palettes found. Click "Save Palette" to create one!
+                    </div>
+                  ) : (
+                    globalPalettes.map((pal) => (
+                      <div
+                        key={pal.id}
+                        onClick={() => applySavedPalette(pal.colors)}
+                        className="group flex items-center justify-between p-1.5 rounded-lg border border-[#23242c] hover:border-[#818cf8]/60 bg-[#1a1b24] hover:bg-[#222430] cursor-pointer transition-all gap-2"
+                        title={`Apply ${pal.name} to mesh pins`}
+                      >
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-[11px] font-semibold text-[#f2f2f5] truncate">
+                            {pal.name}
+                          </span>
+                          <div className="flex items-center h-2.5 rounded-md overflow-hidden mt-1 border border-black/40">
+                            {pal.colors.map((c, i) => (
+                              <div key={i} className="flex-1 h-full" style={{ backgroundColor: c }} />
+                            ))}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => deleteSavedPalette(pal.id, e)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-[#8f94a8] hover:text-red-400 hover:bg-[#23242c] rounded-md transition-all cursor-pointer shrink-0"
+                          title="Delete palette"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
+
 
             {/* Section 2: Active Point Customization */}
             {activePoint && (
