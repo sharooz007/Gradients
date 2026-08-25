@@ -10,6 +10,7 @@ export interface ShaderCanvasRef {
     scale?: number
   ) => Promise<HTMLCanvasElement>;
   getRenderer: () => ShaderRenderer | null;
+  copyToClipboard: () => Promise<boolean>;
 }
 
 interface ShaderCanvasProps {
@@ -32,7 +33,32 @@ export const ShaderCanvas = forwardRef<ShaderCanvasRef, ShaderCanvasProps>(
         }
         return rendererRef.current.renderHighRes(s, tw, th, scale);
       },
-      getRenderer: () => rendererRef.current
+      getRenderer: () => rendererRef.current,
+      copyToClipboard: async () => {
+        if (!rendererRef.current) return false;
+        try {
+          const exportCanvas = await rendererRef.current.renderHighRes(state, width, height, 1);
+          return new Promise<boolean>((resolve) => {
+            exportCanvas.toBlob(async (blob) => {
+              if (!blob) {
+                resolve(false);
+                return;
+              }
+              try {
+                await navigator.clipboard.write([
+                  new ClipboardItem({ 'image/png': blob })
+                ]);
+                resolve(true);
+              } catch (err) {
+                console.error('Clipboard copy failed', err);
+                resolve(false);
+              }
+            }, 'image/png');
+          });
+        } catch {
+          return false;
+        }
+      }
     }));
 
     // Initialize renderer

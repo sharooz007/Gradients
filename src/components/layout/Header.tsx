@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Undo2,
   Redo2,
   Copy,
@@ -20,6 +19,8 @@ import { CANVAS_SIZE_PRESETS } from '../../data/canvasSizes';
 import { SegmentedPicker } from '../controls/SegmentedPicker';
 
 interface HeaderProps {
+  activeToolId?: string;
+  onOpenToolsGallery?: () => void;
   mode: AppMode;
   onModeChange: (mode: AppMode) => void;
   dimensions: CanvasDimensions;
@@ -40,6 +41,8 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  activeToolId = 'shader-background-generator',
+  onOpenToolsGallery,
   mode,
   onModeChange,
   dimensions,
@@ -65,37 +68,51 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="h-14 w-full px-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between z-30 select-none">
-      {/* Left branding & Mode switcher */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white">
-            <Sparkles className="w-4 h-4" />
+      {/* Left branding & Tools dropdown button */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenToolsGallery}
+          className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:border-indigo-500 transition-all cursor-pointer group"
+        >
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center text-white text-xs font-black shadow-xs">
+            M
           </div>
-          <div className="hidden sm:flex flex-col">
-            <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-              MagicShader
-              <span className="text-[10px] font-semibold px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-800">
-                PRO
-              </span>
+          <div className="flex flex-col text-left">
+            <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1">
+              MagicPattern
+              <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-indigo-500 transition-colors" />
             </span>
-            <span className="text-[10px] text-slate-400">Shader Background Studio</span>
           </div>
-        </div>
+        </button>
 
-        <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden md:block" />
+        <button
+          type="button"
+          onClick={onOpenToolsGallery}
+          className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-colors cursor-pointer"
+        >
+          <span>Browse 30+ Tools</span>
+          <span className="text-[10px] opacity-60 font-mono bg-indigo-200/50 dark:bg-indigo-900 px-1 rounded">⌘K</span>
+        </button>
 
-        {/* Mode switch */}
-        <div className="w-36">
-          <SegmentedPicker<AppMode>
-            size="sm"
-            value={mode}
-            onChange={onModeChange}
-            options={[
-              { value: 'image', label: 'Image' },
-              { value: 'video', label: 'Video' }
-            ]}
-          />
-        </div>
+        {activeToolId === 'shader-background-generator' && (
+          <>
+            <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden md:block" />
+
+            {/* Mode switch */}
+            <div className="w-36">
+              <SegmentedPicker<AppMode>
+                size="sm"
+                value={mode}
+                onChange={onModeChange}
+                options={[
+                  { value: 'image', label: 'Image' },
+                  { value: 'video', label: 'Video' }
+                ]}
+              />
+            </div>
+          </>
+        )}
 
         {/* Canvas Resolution Dropdown */}
         <div className="relative">

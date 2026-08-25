@@ -14,8 +14,45 @@ import { ExportImageModal } from './components/modals/ExportImageModal';
 import { ExportVideoModal } from './components/modals/ExportVideoModal';
 import { ExportCodeModal } from './components/modals/ExportCodeModal';
 import { SavePresetModal } from './components/modals/SavePresetModal';
+import { ToolsGalleryModal } from './components/modals/ToolsGalleryModal';
+
+// Category 1: Shaders & Gradients
+import { GradientStudio } from './tools/shaders/GradientStudio';
+import { AppleWallpaperStudio } from './tools/shaders/AppleWallpaperStudio';
+import { GodRaysStudio } from './tools/shaders/GodRaysStudio';
+import { FractalGlassStudio } from './tools/shaders/FractalGlassStudio';
+
+// Category 2: Patterns & Textures
+import { CssPatternStudio } from './tools/patterns/CssPatternStudio';
+import { PerspectiveGridStudio } from './tools/patterns/PerspectiveGridStudio';
+import { HalftoneStudio } from './tools/patterns/HalftoneStudio';
+import { DitherStudio } from './tools/patterns/DitherStudio';
+import { DieterDotsStudio } from './tools/patterns/DieterDotsStudio';
+import { StarrySkyStudio } from './tools/patterns/StarrySkyStudio';
+import { GridBackgroundStudio } from './tools/patterns/GridBackgroundStudio';
+import { DoodleStudio } from './tools/patterns/DoodleStudio';
+
+// Category 3: SVG & Shapes
+import { WaveGeneratorStudio } from './tools/svg/WaveGeneratorStudio';
+import { BlobGeneratorStudio } from './tools/svg/BlobGeneratorStudio';
+import { ShapeGeneratorStudio } from './tools/svg/ShapeGeneratorStudio';
+import { ConfettiStudio } from './tools/svg/ConfettiStudio';
+import { SvgChartStudio } from './tools/svg/SvgChartStudio';
+
+// Category 4: Colors & Palettes
+import { HarmonicPaletteStudio } from './tools/colors/HarmonicPaletteStudio';
+import { TailwindPaletteStudio } from './tools/colors/TailwindPaletteStudio';
+import { ImagePaletteExtractorStudio } from './tools/colors/ImagePaletteExtractorStudio';
+
+// Category 5: Converters
+import { SvgToCssStudio } from './tools/converters/SvgToCssStudio';
+import { SvgBase64Studio } from './tools/converters/SvgBase64Studio';
+import { ImageBase64Studio } from './tools/converters/ImageBase64Studio';
 
 export function App() {
+  const [activeToolId, setActiveToolId] = useState<string>('shader-background-generator');
+  const [isToolsGalleryOpen, setIsToolsGalleryOpen] = useState<boolean>(false);
+
   const [mode, setMode] = useState<AppMode>('image');
   const [selectedPresetId, setSelectedPresetId] = useState<string>(PRESETS[0].id);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -81,15 +118,21 @@ export function App() {
     });
   };
 
-  // Keyboard shortcut listener for Spacebar (Randomize)
+  // Keyboard shortcut listener for Spacebar & Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsToolsGalleryOpen((prev) => !prev);
+        return;
+      }
+
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
         return;
       }
 
-      if (e.code === 'Space' && mode === 'image') {
+      if (e.code === 'Space' && mode === 'image' && activeToolId === 'shader-background-generator') {
         e.preventDefault();
         randomizeAll();
       }
@@ -97,93 +140,206 @@ export function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, randomizeAll]);
+  }, [mode, randomizeAll, activeToolId]);
 
-  // Apply Preset
+  // Handle preset selection
   const handleSelectPreset = (preset: Preset) => {
     setSelectedPresetId(preset.id);
-    if (preset.dimensions) {
-      setDimensions(preset.dimensions);
-    }
     commitState(preset.state);
   };
 
-  // Save Custom Preset
-  const handleSavePreset = (preset: Preset) => {
-    const updated = [preset, ...customPresets];
-    setCustomPresets(updated);
+  // Handle saving new preset
+  const handleSavePreset = (newPreset: Preset) => {
+    const nextPresets = [newPreset, ...customPresets];
+    setCustomPresets(nextPresets);
+    setSelectedPresetId(newPreset.id);
     try {
-      localStorage.setItem('magic_custom_shader_presets', JSON.stringify(updated));
-    } catch (e) {
-      console.error('Failed to save to localStorage:', e);
+      localStorage.setItem('magic_custom_shader_presets', JSON.stringify(nextPresets));
+    } catch {
+      // ignore
     }
   };
 
-  // Delete Custom Preset
-  const handleDeleteCustomPreset = (id: string) => {
-    const updated = customPresets.filter((p) => p.id !== id);
-    setCustomPresets(updated);
-    try {
-      localStorage.setItem('magic_custom_shader_presets', JSON.stringify(updated));
-    } catch (e) {
-      console.error('Failed to save to localStorage:', e);
-    }
-  };
-
-  // Quick Copy to Clipboard
-  const handleQuickCopyClipboard = async () => {
-    if (!canvasRef.current) return;
+  // Handle copy image to clipboard
+  const handleCopyClipboard = async () => {
+    if (!canvasRef.current || isCopying) return;
     setIsCopying(true);
-
     try {
-      const effective = mode === 'video' ? timeline.effectiveState : state;
-      const offscreen = await canvasRef.current.renderHighRes(
-        effective,
-        dimensions.width,
-        dimensions.height,
-        1
-      );
-
-      offscreen.toBlob(async (blob) => {
-        if (!blob) return;
-        try {
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': blob })
-          ]);
-          confetti({
-            particleCount: 50,
-            spread: 50,
-            origin: { y: 0.7 }
-          });
-          setTimeout(() => setIsCopying(false), 2000);
-        } catch (clipErr) {
-          console.error('Clipboard copy error:', clipErr);
-          setIsCopying(false);
-        }
-      }, 'image/png');
+      const success = await canvasRef.current.copyToClipboard();
+      if (success) {
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.8 }
+        });
+      }
     } catch (err) {
-      console.error('Quick copy error:', err);
-      setIsCopying(false);
+      console.error('Failed to copy canvas to clipboard:', err);
+    } finally {
+      setTimeout(() => setIsCopying(false), 2000);
     }
   };
 
-  // The active state to display
-  const activeDisplayState = mode === 'video' ? timeline.effectiveState : state;
+  const activeShaderState = mode === 'video' ? timeline.effectiveState : state;
+
+  // Render Studio dynamically based on active tool
+  const renderActiveToolStudio = () => {
+    switch (activeToolId) {
+      case 'shader-background-generator':
+        return (
+          <>
+            <div className="flex-1 flex overflow-hidden">
+              <LeftSidebar
+                state={activeShaderState}
+                onUpdateState={updateState}
+                onShuffleColors={shuffleColors}
+                onShuffleSeed={shuffleSeed}
+              />
+
+              <PreviewArea
+                state={activeShaderState}
+                dimensions={dimensions}
+                canvasRef={canvasRef}
+              />
+
+              <RightSidebar
+                currentPresetId={selectedPresetId}
+                onSelectPreset={handleSelectPreset}
+                customPresets={customPresets}
+                onOpenSaveModal={() => setIsSavePresetOpen(true)}
+                onDeleteCustomPreset={(id) => {
+                  const updated = customPresets.filter((p) => p.id !== id);
+                  setCustomPresets(updated);
+                  localStorage.setItem('magic_custom_shader_presets', JSON.stringify(updated));
+                }}
+                onImportPresetJson={(p) => {
+                  handleSavePreset(p);
+                }}
+              />
+            </div>
+
+            {mode === 'video' && (
+              <VideoTimeline
+                project={timeline.project}
+                playhead={timeline.playhead}
+                isPlaying={timeline.isPlaying}
+                isLooping={timeline.isLooping}
+                selectedKeyframeId={timeline.selectedKeyframeId}
+                onTogglePlay={timeline.togglePlay}
+                onToggleLoop={() => timeline.setIsLooping(!timeline.isLooping)}
+                onSeek={timeline.seek}
+                onAddKeyframe={timeline.addKeyframeAtPlayhead}
+                onRemoveKeyframe={timeline.removeKeyframe}
+                onUpdateEasing={timeline.updateKeyframeEasing}
+                onChangeDuration={timeline.setDuration}
+              />
+            )}
+          </>
+        );
+
+      case 'gradient-generator':
+        return <GradientStudio />;
+
+      case 'iphone-13-gradient':
+        return <AppleWallpaperStudio />;
+
+      case 'god-rays-generator':
+        return <GodRaysStudio />;
+
+      case 'fractal-glass-effect':
+        return <FractalGlassStudio />;
+
+      case 'css-pattern-editor':
+      case 'polka-dot-pattern-generator':
+      case 'css-backgrounds':
+      case 'css-stripe-backgrounds':
+      case 'css-dot-backgrounds':
+      case 'css-grid-backgrounds':
+      case 'css-geometric-backgrounds':
+      case 'css-wave-backgrounds':
+        return <CssPatternStudio />;
+
+      case 'perspective-grid-generator':
+        return <PerspectiveGridStudio />;
+
+      case 'halftone-generator':
+      case 'cmyk-halftone':
+        return <HalftoneStudio />;
+
+      case 'dither-generator':
+      case 'add-grain-to-images':
+        return <DitherStudio />;
+
+      case 'dieter-dots':
+        return <DieterDotsStudio />;
+
+      case 'starry-sky-generator':
+        return <StarrySkyStudio />;
+
+      case 'grid-background-pattern-generator':
+        return <GridBackgroundStudio />;
+
+      case 'doodle-backgrounds':
+        return <DoodleStudio />;
+
+      case 'wave-generator':
+        return <WaveGeneratorStudio />;
+
+      case 'blob-generator':
+        return <BlobGeneratorStudio />;
+
+      case 'shape-generator':
+        return <ShapeGeneratorStudio />;
+
+      case 'confetti-generator':
+        return <ConfettiStudio />;
+
+      case 'svg-chart-generator':
+        return <SvgChartStudio />;
+
+      case 'color-palette-generator':
+      case 'color-tints-shades-generator':
+        return <HarmonicPaletteStudio />;
+
+      case 'tailwind-color-palette-generator':
+        return <TailwindPaletteStudio />;
+
+      case 'extract-palette-from-image':
+        return <ImagePaletteExtractorStudio />;
+
+      case 'svg-to-css':
+      case 'css-to-svg':
+        return <SvgToCssStudio />;
+
+      case 'svg-to-base64':
+      case 'base64-to-svg':
+        return <SvgBase64Studio />;
+
+      case 'image-to-base64':
+      case 'base64-to-image':
+        return <ImageBase64Studio />;
+
+      default:
+        return <GradientStudio />;
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden font-sans">
-      {/* Top Header */}
+      {/* Header */}
       <Header
+        activeToolId={activeToolId}
+        onOpenToolsGallery={() => setIsToolsGalleryOpen(true)}
         mode={mode}
         onModeChange={setMode}
         dimensions={dimensions}
         onDimensionsChange={setDimensions}
         canUndo={canUndo}
-        canRedo={canRedo}
+        canRedo={redo !== undefined && canRedo}
         onUndo={undo}
         onRedo={redo}
         onRandomize={randomizeAll}
-        onCopyClipboard={handleQuickCopyClipboard}
+        onCopyClipboard={handleCopyClipboard}
         onOpenExportImage={() => setIsExportImageOpen(true)}
         onOpenExportVideo={() => setIsExportVideoOpen(true)}
         onOpenExportCode={() => setIsExportCodeOpen(true)}
@@ -193,65 +349,25 @@ export function App() {
         isCopying={isCopying}
       />
 
-      {/* Main Workspace */}
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Left Customization Sidebar */}
-        <LeftSidebar
-          state={activeDisplayState}
-          onUpdateState={(updates, commit) => {
-            if (mode === 'video' && timeline.selectedKeyframeId) {
-              timeline.updateKeyframeValues(timeline.selectedKeyframeId, updates);
-            }
-            updateState(updates, commit);
-          }}
-          onShuffleColors={shuffleColors}
-          onShuffleSeed={shuffleSeed}
-        />
+      {/* Main Studio Viewport */}
+      {renderActiveToolStudio()}
 
-        {/* Center Preview Viewport */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <PreviewArea
-            canvasRef={canvasRef}
-            state={activeDisplayState}
-            dimensions={dimensions}
-            customTime={mode === 'video' ? timeline.playhead : undefined}
-          />
+      {/* Tools Gallery Switcher Modal */}
+      <ToolsGalleryModal
+        isOpen={isToolsGalleryOpen}
+        onClose={() => setIsToolsGalleryOpen(false)}
+        activeToolId={activeToolId}
+        onSelectTool={(id) => {
+          setActiveToolId(id);
+          setIsToolsGalleryOpen(false);
+        }}
+      />
 
-          {/* Bottom Video Keyframe Timeline (Visible only in Video Mode) */}
-          {mode === 'video' && (
-            <VideoTimeline
-              project={timeline.project}
-              playhead={timeline.playhead}
-              isPlaying={timeline.isPlaying}
-              isLooping={timeline.isLooping}
-              selectedKeyframeId={timeline.selectedKeyframeId}
-              onTogglePlay={timeline.togglePlay}
-              onToggleLoop={() => timeline.setIsLooping(!timeline.isLooping)}
-              onSeek={timeline.seek}
-              onAddKeyframe={() => timeline.addKeyframeAtPlayhead(state)}
-              onRemoveKeyframe={timeline.removeKeyframe}
-              onUpdateEasing={timeline.updateKeyframeEasing}
-              onChangeDuration={timeline.setDuration}
-            />
-          )}
-        </div>
-
-        {/* Right Presets Sidebar */}
-        <RightSidebar
-          currentPresetId={selectedPresetId}
-          onSelectPreset={handleSelectPreset}
-          onOpenSaveModal={() => setIsSavePresetOpen(true)}
-          customPresets={customPresets}
-          onDeleteCustomPreset={handleDeleteCustomPreset}
-          onImportPresetJson={handleSavePreset}
-        />
-      </div>
-
-      {/* Modals */}
+      {/* Global Shader Modals */}
       <ExportImageModal
         isOpen={isExportImageOpen}
         onClose={() => setIsExportImageOpen(false)}
-        state={activeDisplayState}
+        state={activeShaderState}
         dimensions={dimensions}
         canvasRef={canvasRef}
       />
@@ -268,13 +384,13 @@ export function App() {
       <ExportCodeModal
         isOpen={isExportCodeOpen}
         onClose={() => setIsExportCodeOpen(false)}
-        state={activeDisplayState}
+        state={activeShaderState}
       />
 
       <SavePresetModal
         isOpen={isSavePresetOpen}
         onClose={() => setIsSavePresetOpen(false)}
-        state={activeDisplayState}
+        state={activeShaderState}
         dimensions={dimensions}
         onSavePreset={handleSavePreset}
       />
