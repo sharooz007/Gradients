@@ -201,6 +201,7 @@ export function App() {
               dimensions={dimensions}
               mode={mode}
               onSetMode={setMode}
+              customTime={mode === 'video' ? timeline.playhead : undefined}
               canvasRef={canvasRef}
               footerContent={
                 mode === 'video' ? (
