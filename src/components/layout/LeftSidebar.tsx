@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import {
-  Waves,
-  Sparkles,
   Grid,
   Film,
-  SunMedium,
   Play,
   RotateCw,
   Eye,
@@ -48,7 +45,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   return (
-    <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+    <aside className="w-80 h-full min-h-0 shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden z-20 custom-scrollbar overscroll-contain pb-10"><div className="flex flex-col w-full min-h-max">
       {/* Colors Panel */}
       <div className="p-3 border-b border-[#e5e5ea] flex flex-col gap-3">
         <ColorPickerGroup
@@ -63,12 +60,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         <button
           type="button"
           onClick={() => toggleSection('wave')}
-          className="w-full px-3 py-2.5 flex items-center justify-between text-[13px] font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+          className="w-full px-3 py-2.5 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
         >
-          <div className="flex items-center gap-2">
-            <Waves className="w-4 h-4 text-[#0071e3]" />
-            <span>Wave Geometry</span>
-          </div>
+          <span>Wave Geometry</span>
           <ChevronDown className={`w-3.5 h-3.5 text-[#86868b] transition-transform ${openSections.wave ? 'rotate-180' : ''}`} />
         </button>
 
@@ -164,12 +158,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <button
             type="button"
             onClick={() => toggleSection('warp')}
-            className="w-full px-3 py-2.5 flex items-center justify-between text-[13px] font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+            className="w-full px-3 py-2.5 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#86868b]" />
-              <span>Distortion & Warp</span>
-            </div>
+            <span>Distortion & Warp</span>
             <ChevronDown className={`w-3.5 h-3.5 text-[#86868b] transition-transform ${openSections.warp ? 'rotate-180' : ''}`} />
           </button>
 
@@ -214,7 +205,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="px-3 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Grid className="w-4 h-4 text-[#86868b]" />
-              <span className="text-[13px] font-semibold text-[#1d1d1f]">
+              <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">
                 Retro Dithering
               </span>
             </div>
@@ -256,7 +247,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="px-3 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Film className="w-4 h-4 text-[#86868b]" />
-              <span className="text-[13px] font-semibold text-[#1d1d1f]">
+              <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">
                 Film Grain
               </span>
             </div>
@@ -297,7 +288,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="px-3 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-[#86868b]" />
-              <span className="text-[13px] font-semibold text-[#1d1d1f]">
+              <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">
                 Vignette
               </span>
             </div>
@@ -338,7 +329,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="px-3 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#86868b]" />
-              <span className="text-[13px] font-semibold text-[#1d1d1f]">
+              <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">
                 Glass Refraction
               </span>
             </div>
@@ -400,12 +391,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <button
             type="button"
             onClick={() => toggleSection('filters')}
-            className="w-full px-3 py-2.5 flex items-center justify-between text-[13px] font-semibold text-[#1d1d1f] hover:bg-[#f5f5f7] transition-colors cursor-pointer"
+            className="w-full px-3 py-2.5 flex items-center justify-between text-[11px] font-bold text-[#86868b] tracking-wider uppercase hover:bg-[#f5f5f7] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <SunMedium className="w-4 h-4 text-[#86868b]" />
-              <span>Color Filters</span>
-            </div>
+            <span>Color Filters</span>
             <ChevronDown className={`w-3.5 h-3.5 text-[#86868b] transition-transform ${openSections.filters ? 'rotate-180' : ''}`} />
           </button>
 
@@ -450,7 +438,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="px-3 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Play className="w-4 h-4 text-[#86868b]" />
-              <span className="text-[13px] font-semibold text-[#1d1d1f]">
+              <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">
                 Live Animate
               </span>
             </div>
@@ -487,6 +475,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             </div>
           </div>
         </div>
+    </div>
     </aside>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Bookmark,
   Search,
   Upload,
@@ -63,12 +62,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       {/* Sidebar Header */}
       <div className="p-3 shrink-0 border-b border-[#e5e5ea] flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-[#0071e3]" />
-            <span className="text-xs font-semibold text-[#1d1d1f]">
-              Preset Library
-            </span>
-          </div>
+          <span className="text-[11px] font-bold text-[#86868b] tracking-wider uppercase">Presets</span>
 
           <div className="flex items-center gap-1">
             <label
@@ -135,7 +129,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       </div>
 
       {/* Presets Grid */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar overscroll-contain">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 grid grid-cols-2 auto-rows-max gap-2.5 custom-scrollbar overscroll-contain pb-10">
         {filteredPresets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center p-4">
             <Bookmark className="w-8 h-8 text-[#d1d1d6] mb-2" />
@@ -158,7 +152,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               <div
                 key={preset.id}
                 onClick={() => onSelectPreset(preset)}
-                className={`group relative p-2.5 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
+                className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col gap-2 ${
                   isSelected
                     ? 'border-[#0071e3] bg-[#e8f2fc] ring-1 ring-[#0071e3]/30'
                     : 'border-[#e5e5ea] hover:border-[#d1d1d6] bg-white hover:bg-[#fafafc]'
@@ -166,7 +160,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
               >
                 {/* Thumbnail Swatch */}
                 <div
-                  className="w-12 h-10 rounded-lg shadow-inner shrink-0 border border-black/10 /10 group-hover:scale-105 transition-transform overflow-hidden relative"
+                  className="w-full aspect-[4/3] rounded-lg shadow-inner shrink-0 border border-black/10 group-hover:scale-105 transition-transform overflow-hidden relative"
                   style={{ background: gradientCss }}
                 >
                   {preset.state.ditherEnabled && (
@@ -175,8 +169,8 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                 </div>
 
                 {/* Info */}
-                <div className="flex-1 min-w-0 flex flex-col">
-                  <span className="text-xs font-semibold text-[#1d1d1f] truncate">
+                <div className="w-full flex flex-col px-0.5">
+                  <span className="text-[11px] font-bold text-[#1d1d1f] truncate leading-tight">
                     {preset.name}
                   </span>
                   <div className="flex items-center gap-1 mt-1">
@@ -201,7 +195,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
                       e.stopPropagation();
                       onDeleteCustomPreset(preset.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-[#a1a1a6] hover:text-red-500 transition-all rounded hover:bg-[#f2f2f7]"
+                    className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 text-white bg-black/50 hover:bg-red-500 transition-all rounded-md backdrop-blur-md"
                     title="Delete preset"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

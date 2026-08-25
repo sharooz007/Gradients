@@ -62,7 +62,8 @@ export const SvgChartStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden z-20 custom-scrollbar overscroll-contain pb-10">
+        <div className="flex flex-col w-full min-h-max">
         <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-[#0071e3]" />
@@ -169,6 +170,7 @@ export const SvgChartStudio: React.FC = () => {
             <span>{isCopied ? 'SVG Code Copied!' : 'Copy Vector SVG'}</span>
           </button>
         </div>
+      </div>
       </aside>
 
       {/* Main SVG Preview Area */}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 interface SliderControlProps {
@@ -56,10 +57,13 @@ export const SliderControl: React.FC<SliderControlProps> = ({
     }
   };
 
+  // Calculate percentage for filled track
+  const percent = ((value - min) / (max - min)) * 100;
+
   return (
-    <div className={`flex flex-col gap-1.5 w-full ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
+    <div className={`flex flex-col gap-2 w-full ${disabled ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between text-xs">
-        <span className="font-medium text-[#1d1d1f]">{label}</span>
+        <span className="font-bold text-[#1d1d1f] tracking-wide uppercase text-[10px]">{label}</span>
         <div className="flex items-center gap-0.5 font-mono text-[11px] text-[#86868b]">
           <input
             type="number"
@@ -69,12 +73,19 @@ export const SliderControl: React.FC<SliderControlProps> = ({
             step={step}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            className="w-10 bg-transparent text-right outline-none text-[#1d1d1f] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-12 bg-transparent text-right outline-none text-[#1d1d1f] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
-          <span className="text-[#86868b] select-none">{isAngle ? '°' : unit}</span>
+          <span className="select-none">{isAngle ? '°' : unit}</span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="relative flex items-center h-4 group">
+        {/* Thick Track */}
+        <div className="absolute w-full h-2 bg-[#e5e5ea] rounded-full pointer-events-none" />
+        {/* Filled Track */}
+        <div 
+          className="absolute h-2 bg-[#0071e3] rounded-full pointer-events-none" 
+          style={{ width: `${Math.max(4, percent)}%` }}
+        />
         <input
           type="range"
           min={min}
@@ -84,7 +95,12 @@ export const SliderControl: React.FC<SliderControlProps> = ({
           onChange={handleSliderChange}
           onMouseUp={() => onChangeEnd && onChangeEnd(value)}
           onTouchEnd={() => onChangeEnd && onChangeEnd(value)}
-          className="w-full h-0.5 bg-[#e5e5ea] rounded-full appearance-none cursor-pointer"
+          className="absolute w-full h-full opacity-0 cursor-pointer"
+        />
+        {/* Thumb */}
+        <div 
+          className="absolute w-3 h-3 bg-white rounded-full shadow-[0_0_2px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.2)] pointer-events-none border border-[#0071e3]/20"
+          style={{ left: `calc(${percent}% - 6px)` }}
         />
       </div>
     </div>

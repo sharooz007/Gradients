@@ -53,7 +53,8 @@ ${SHADE_STEPS.map((step) => `          ${step}: '${shades[step]}',`).join('\n')}
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
       {/* Left Control Sidebar */}
-      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden flex flex-col z-20 custom-scrollbar overscroll-contain">
+      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden z-20 custom-scrollbar overscroll-contain pb-10">
+        <div className="flex flex-col w-full min-h-max">
         <div className="flex items-center justify-between p-4 border-b border-[#e5e5ea]">
           <div className="flex items-center gap-2">
             <Wand2 className="w-4 h-4 text-[#0071e3]" />
@@ -105,6 +106,7 @@ ${SHADE_STEPS.map((step) => `          ${step}: '${shades[step]}',`).join('\n')}
             <span>{copiedKey === 'CONFIG' ? 'Config Copied!' : 'Copy tailwind.config.js'}</span>
           </button>
         </div>
+      </div>
       </aside>
 
       {/* Main Tailwind Scale Visualizer */}

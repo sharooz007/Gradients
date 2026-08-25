@@ -164,7 +164,8 @@ export const GradientStudio: React.FC = () => {
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
       {/* Left Customization Panel */}
-      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 gap-4 overflow-y-auto custom-scrollbar pb-10">
+        <div className="flex flex-col w-full min-h-max">
         <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Palette className="w-4 h-4 text-indigo-500" />
@@ -338,6 +339,7 @@ export const GradientStudio: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
       </aside>
 
       {/* Main Preview Center */}
