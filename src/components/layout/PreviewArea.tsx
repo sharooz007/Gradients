@@ -75,16 +75,6 @@ export const PreviewArea: React.FC<PreviewAreaProps> = ({
             customTime={customTime}
             onFrameUpdate={onFrameUpdate}
           />
-
-          {/* MagicPattern Corner Watermark Pill */}
-          <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-[#16171d]/85 backdrop-blur-md border border-white/10 shadow-md flex items-center gap-1.5 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
-            <div className="w-3.5 h-3.5 rounded bg-[#6268f8] flex items-center justify-center text-[8px] font-bold text-white">
-              MP
-            </div>
-            <span className="text-[10px] font-bold text-white/90 tracking-tight">
-              MagicPattern
-            </span>
-          </div>
         </div>
       </div>
 
