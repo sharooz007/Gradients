@@ -1,115 +1,138 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download,
   Copy,
   Check,
   Lock,
   Unlock,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  Shuffle,
   Plus,
   Trash2,
-  FileCode,
-  Palette
+  Edit2,
+  Sparkles,
+  Undo2,
+  Redo2,
+  Bookmark,
+  Share2,
+  ArrowLeftRight,
+  FileCode
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+
+type HarmonyMode = 'auto' | 'mono' | 'analogous' | 'complementary' | 'split' | 'triadic' | 'tetradic';
+
 interface PaletteColor {
+  id: string;
   hex: string;
   isLocked: boolean;
 }
 
-interface CuratedPalette {
-  id: string;
-  name: string;
-  colors: string[];
-}
-
-const CURATED_PALETTES: CuratedPalette[] = [
-  {
-    id: 'cyber-neon',
-    name: 'Cyberpunk Neon',
-    colors: ['#00f2fe', '#ff007f', '#ffe600', '#a855f7', '#0f172a']
-  },
-  {
-    id: 'sunset-blush',
-    name: 'Sunset Twilight',
-    colors: ['#f97316', '#ec4899', '#8b5cf6', '#3b82f6', '#0f172a']
-  },
-  {
-    id: 'emerald-mint',
-    name: 'Emerald Forest',
-    colors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#064e3b']
-  },
-  {
-    id: 'velvet-midnight',
-    name: 'Velvet Midnight',
-    colors: ['#1e1b4b', '#312e81', '#4338ca', '#6366f1', '#a5b4fc']
-  },
-  {
-    id: 'warm-sand',
-    name: 'Nordic Sandstone',
-    colors: ['#78716c', '#a8a29e', '#d6d3d1', '#f5f5f4', '#292524']
-  }
+const INITIAL_COLORS: PaletteColor[] = [
+  { id: 'c1', hex: '#E8D587', isLocked: false },
+  { id: 'c2', hex: '#0E2430', isLocked: false },
+  { id: 'c3', hex: '#FC3A51', isLocked: false },
+  { id: 'c4', hex: '#F5B349', isLocked: false },
+  { id: 'c5', hex: '#E8D589', isLocked: false }
 ];
 
 export const HarmonicPaletteStudio: React.FC = () => {
-  const [harmony, setHarmony] = useState<
-    'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'monochromatic' | 'split-complementary'
-  >('analogous');
-
-  const [colors, setColors] = useState<PaletteColor[]>([
-    { hex: '#3B82F6', isLocked: false },
-    { hex: '#10B981', isLocked: false },
-    { hex: '#F59E0B', isLocked: false },
-    { hex: '#EC4899', isLocked: false },
-    { hex: '#8B5CF6', isLocked: false }
-  ]);
-
+  const [harmony, setHarmony] = useState<HarmonyMode>('auto');
+  const [colors, setColors] = useState<PaletteColor[]>(INITIAL_COLORS);
+  const [activeColorPickerId, setActiveColorPickerId] = useState<string | null>(null);
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
-  const [isRightCollapsed, setIsRightCollapsed] = useState(false);
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('cyber-neon');
-  const [searchPreset, setSearchPreset] = useState('');
-  const [presetTab, setPresetTab] = useState<'curated' | 'saved'>('curated');
-  const [customPresets, setCustomPresets] = useState<CuratedPalette[]>([]);
+  const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
+  // History stack for Undo / Redo
+  const [history, setHistory] = useState<PaletteColor[][]>([INITIAL_COLORS]);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
+
+  // Export and Save Modals
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [savedPalettes, setSavedPalettes] = useState<{ id: string; name: string; colors: string[] }[]>([]);
+
+
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+  const paletteContainerRef = useRef<HTMLDivElement>(null);
+
+  // Load saved palettes from localStorage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('magic_custom_palettes');
-      if (saved) setCustomPresets(JSON.parse(saved));
+      const saved = localStorage.getItem('magic_global_palettes');
+      if (saved) setSavedPalettes(JSON.parse(saved));
     } catch {
       // ignore
     }
   }, []);
 
-  // Spacebar to shuffle colors
+  // Close color picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setActiveColorPickerId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Push new state to history
+  const pushState = (newColors: PaletteColor[]) => {
+    const updatedHistory = history.slice(0, historyIndex + 1);
+    updatedHistory.push(newColors);
+    setHistory(updatedHistory);
+    setHistoryIndex(updatedHistory.length - 1);
+    setColors(newColors);
+  };
+
+  const undo = () => {
+    if (historyIndex > 0) {
+      const nextIdx = historyIndex - 1;
+      setHistoryIndex(nextIdx);
+      setColors(history[nextIdx]);
+    }
+  };
+
+  const redo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIdx = historyIndex + 1;
+      setHistoryIndex(nextIdx);
+      setColors(history[nextIdx]);
+    }
+  };
+
+  // Spacebar to generate palette
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
         e.preventDefault();
-        generateHarmony();
+        generatePalette();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
-  const generateHarmony = () => {
+  // Algorithm to generate harmonic palette based on mode
+  const generatePalette = () => {
+    const lockedFirst = colors.find((c) => c.isLocked)?.hex;
+    const baseHex = lockedFirst || getRandomHex();
+    const baseHsl = hexToHsl(baseHex);
 
-    const baseCol = colors.find((c) => c.isLocked)?.hex || colors[0].hex;
-    const baseHsl = hexToHsl(baseCol);
-
-    const offsets: Record<typeof harmony, number[]> = {
-      analogous: [0, 30, 60, -30, -60],
-      complementary: [0, 180, 20, 200, 40],
-      triadic: [0, 120, 240, 60, 180],
-      tetradic: [0, 90, 180, 270, 45],
-      'split-complementary': [0, 150, 210, 30, 180],
-      monochromatic: [0, 0, 0, 0, 0]
+    const offsets: Record<HarmonyMode, number[]> = {
+      auto: [0, 35, 180, 215, 60, 290, 120, 240],
+      mono: [0, 0, 0, 0, 0, 0, 0, 0],
+      analogous: [0, 25, 50, -25, -50, 75, -75, 100],
+      complementary: [0, 180, 15, 195, 30, 210, -15, 165],
+      split: [0, 150, 210, 30, 180, 120, 240, 60],
+      triadic: [0, 120, 240, 30, 150, 270, 60, 180],
+      tetradic: [0, 90, 180, 270, 45, 135, 225, 315]
     };
 
     const currentOffsets = offsets[harmony];
@@ -117,438 +140,413 @@ export const HarmonicPaletteStudio: React.FC = () => {
     const nextColors = colors.map((col, idx) => {
       if (col.isLocked) return col;
 
-      if (harmony === 'monochromatic') {
-        const lumSteps = [0.2, 0.38, 0.55, 0.72, 0.9];
+      if (harmony === 'mono') {
+        const lumSteps = [0.9, 0.75, 0.55, 0.35, 0.18, 0.85, 0.65, 0.45];
         return {
           ...col,
-          hex: hslToHex(baseHsl.h, baseHsl.s, lumSteps[idx])
+          hex: hslToHex(baseHsl.h, baseHsl.s * 0.7, lumSteps[idx % lumSteps.length])
         };
       } else {
-        const offset = currentOffsets[idx];
+        const offset = currentOffsets[idx % currentOffsets.length];
         const newH = (baseHsl.h + offset + 360) % 360;
+        const sat = Math.max(0.35, Math.min(0.9, baseHsl.s + (idx % 2 === 0 ? 0.1 : -0.1)));
+        const lum = Math.max(0.2, Math.min(0.85, 0.25 + ((idx * 0.18) % 0.6)));
         return {
           ...col,
-          hex: hslToHex(newH, Math.max(0.4, baseHsl.s), Math.max(0.35, Math.min(0.65, baseHsl.l)))
+          hex: hslToHex(newH, sat, lum)
         };
       }
     });
 
-    setColors(nextColors);
+    pushState(nextColors);
+    confetti({ particleCount: 20, spread: 40, origin: { y: 0.4 } });
   };
 
-  const toggleLock = (index: number) => {
-    setColors((prev) =>
-      prev.map((c, i) => (i === index ? { ...c, isLocked: !c.isLocked } : c))
-    );
+  const toggleLock = (id: string) => {
+    const next = colors.map((c) => (c.id === id ? { ...c, isLocked: !c.isLocked } : c));
+    setColors(next);
   };
 
-  const updateColorHex = (index: number, newHex: string) => {
-    setColors((prev) =>
-      prev.map((c, i) => (i === index ? { ...c, hex: newHex } : c))
-    );
+  const updateColorHex = (id: string, newHex: string) => {
+    const next = colors.map((c) => (c.id === id ? { ...c, hex: newHex } : c));
+    pushState(next);
   };
 
-  const copyColor = (hex: string) => {
-    navigator.clipboard.writeText(hex);
-    setCopiedHex(hex);
-    confetti({ particleCount: 20, spread: 35 });
-    setTimeout(() => setCopiedHex(null), 1500);
+  const addColorColumn = () => {
+    if (colors.length >= 8) return;
+    const baseHsl = hexToHsl(colors[colors.length - 1].hex);
+    const newHex = hslToHex((baseHsl.h + 40) % 360, baseHsl.s, 0.5);
+    const next = [...colors, { id: `c-${Date.now()}`, hex: newHex, isLocked: false }];
+    pushState(next);
+    confetti({ particleCount: 25, spread: 45 });
   };
 
-  const copyCssVars = () => {
-    const css = `:root {\n${colors.map((c, i) => `  --color-${i + 1}: ${c.hex};`).join('\n')}\n}`;
-    navigator.clipboard.writeText(css);
-    setCopiedHex('CSS');
-    confetti({ particleCount: 30, spread: 45 });
-    setTimeout(() => setCopiedHex(null), 2000);
+  const removeColorColumn = (id: string) => {
+    if (colors.length <= 2) return;
+    const next = colors.filter((c) => c.id !== id);
+    pushState(next);
   };
 
-  const copyTailwind = () => {
-    const tw = `colors: {\n  palette: {\n${colors.map((c, i) => `    ${(i + 1) * 100}: '${c.hex}',`).join('\n')}\n  }\n}`;
-    navigator.clipboard.writeText(tw);
-    setCopiedHex('TW');
-    confetti({ particleCount: 30, spread: 45 });
-    setTimeout(() => setCopiedHex(null), 2000);
+  const moveColumn = (index: number, direction: 'left' | 'right') => {
+    const targetIdx = direction === 'left' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= colors.length) return;
+    const next = [...colors];
+    const temp = next[index];
+    next[index] = next[targetIdx];
+    next[targetIdx] = temp;
+    pushState(next);
   };
 
-  const copyJson = () => {
-    const json = JSON.stringify(colors.map((c) => c.hex), null, 2);
-    navigator.clipboard.writeText(json);
-    setCopiedHex('JSON');
-    confetti({ particleCount: 30, spread: 45 });
-    setTimeout(() => setCopiedHex(null), 2000);
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedHex(text);
+    setCopiedToast(`Copied ${label}`);
+    setTimeout(() => {
+      setCopiedHex(null);
+      setCopiedToast(null);
+    }, 1800);
   };
 
-  const applyCurated = (cp: CuratedPalette) => {
-    setSelectedPresetId(cp.id);
-    setColors(cp.colors.map((hex) => ({ hex, isLocked: false })));
-  };
-
-  const saveCurrentAsPreset = () => {
-    const name = prompt('Enter palette name:', `Palette #${customPresets.length + 1}`);
+  const savePaletteToStorage = () => {
+    const defaultName = `Palette #${savedPalettes.length + 1}`;
+    const name = prompt('Name your palette:', defaultName);
     if (!name) return;
-    const newPreset: CuratedPalette = {
-      id: `custom-${Date.now()}`,
-      name,
+
+    const newPal = {
+      id: `palette-${Date.now()}`,
+      name: name.trim(),
       colors: colors.map((c) => c.hex)
     };
-    const updated = [newPreset, ...customPresets];
-    setCustomPresets(updated);
-    localStorage.setItem('magic_custom_palettes', JSON.stringify(updated));
-    setSelectedPresetId(newPreset.id);
+    const updated = [newPal, ...savedPalettes];
+    setSavedPalettes(updated);
+    localStorage.setItem('magic_global_palettes', JSON.stringify(updated));
     confetti({ particleCount: 40, spread: 60 });
   };
 
-  const deleteCustomPreset = (id: string) => {
-    const updated = customPresets.filter((p) => p.id !== id);
-    setCustomPresets(updated);
-    localStorage.setItem('magic_custom_palettes', JSON.stringify(updated));
-  };
-
-  const allPresets = presetTab === 'curated' ? CURATED_PALETTES : customPresets;
-  const filteredPresets = allPresets.filter((p) =>
-    p.name.toLowerCase().includes(searchPreset.toLowerCase())
-  );
-
   return (
-    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#0e0f14] text-[#f2f2f5] relative">
-      {/* 1. Left Control Sidebar */}
-      {isLeftCollapsed ? (
-        <div className="w-10 h-full shrink-0 border-r border-[#23242c] bg-[#16171d] flex flex-col items-center py-4 z-20">
+    <div className="flex-1 flex flex-col h-full min-h-0 overflow-y-auto custom-scrollbar select-none bg-[#0e0f14] text-[#f2f2f5] relative">
+      {/* 1. Top Global Navigation / Action Bar */}
+      <header className="w-full shrink-0 px-6 py-3 border-b border-[#23242c] bg-[#16171d] flex items-center justify-between z-20">
+        {/* Left: Undo / Redo controls */}
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => setIsLeftCollapsed(false)}
-            className="p-1.5 rounded-lg text-[#8f94a8] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
-            title="Expand controls"
+            onClick={undo}
+            disabled={historyIndex <= 0}
+            className="p-2 rounded-xl text-[#8f94a8] hover:text-[#f2f2f5] hover:bg-[#23242c] disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
+            title="Undo (Ctrl+Z)"
           >
-            <ChevronRight className="w-4 h-4" />
+            <Undo2 className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={redo}
+            disabled={historyIndex >= history.length - 1}
+            className="p-2 rounded-xl text-[#8f94a8] hover:text-[#f2f2f5] hover:bg-[#23242c] disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer"
+            title="Redo (Ctrl+Shift+Z)"
+          >
+            <Redo2 className="w-4 h-4" />
           </button>
         </div>
-      ) : (
-        <aside className="w-80 h-full min-h-0 shrink-0 border-r border-[#23242c] bg-[#16171d] flex flex-col z-20 overflow-y-auto overflow-x-hidden custom-scrollbar overscroll-contain pb-12 relative">
-          {/* Header */}
-          <div className="p-3.5 border-b border-[#23242c] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Palette className="w-4 h-4 text-[#818cf8]" />
-              <span className="text-xs font-bold text-[#f2f2f5] tracking-wide uppercase">
-                Harmonic Palette Studio
-              </span>
-            </div>
+
+        {/* Center Harmony Selector Segmented Pills */}
+        <div className="flex items-center p-1 rounded-full bg-[#0e0f14] border border-[#2e303b] text-xs">
+          {(
+            [
+              { id: 'auto', label: 'Auto' },
+              { id: 'mono', label: 'Mono' },
+              { id: 'analogous', label: 'Analogous' },
+              { id: 'complementary', label: 'Complementary' },
+              { id: 'split', label: 'Split' },
+              { id: 'triadic', label: 'Triadic' },
+              { id: 'tetradic', label: 'Tetradic' }
+            ] as const
+          ).map((item) => (
             <button
+              key={item.id}
               type="button"
-              onClick={() => setIsLeftCollapsed(true)}
-              className="p-1 rounded-lg text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
-              title="Collapse sidebar"
+              onClick={() => {
+                setHarmony(item.id);
+                generatePalette();
+              }}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                harmony === item.id
+                  ? 'bg-white text-black shadow-md'
+                  : 'text-[#8f94a8] hover:text-[#f2f2f5]'
+              }`}
             >
-              <ChevronLeft className="w-4 h-4" />
+              {item.label}
             </button>
-          </div>
+          ))}
+        </div>
 
-          <div className="flex flex-col w-full min-h-max divide-y divide-[#23242c]">
-            {/* Section 1: Harmony Theory Rules */}
-            <div className="p-3.5 flex flex-col gap-3">
-              <span className="text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase">
-                Color Harmony Rule
-              </span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {[
-                  { id: 'analogous', label: 'Analogous' },
-                  { id: 'complementary', label: 'Complementary' },
-                  { id: 'triadic', label: 'Triadic' },
-                  { id: 'tetradic', label: 'Tetradic' },
-                  { id: 'split-complementary', label: 'Split Compl.' },
-                  { id: 'monochromatic', label: 'Monochrome' }
-                ].map((hm) => (
-                  <button
-                    key={hm.id}
-                    type="button"
-                    onClick={() => {
-                      setHarmony(hm.id as any);
-                      generateHarmony();
-                    }}
-                    className={`py-2 px-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                      harmony === hm.id
-                        ? 'border-[#818cf8] bg-[#818cf8]/15 text-[#818cf8] shadow-xs'
-                        : 'border-[#2e303b] bg-[#23242c] text-[#8f94a8] hover:text-[#f2f2f5]'
-                    }`}
-                  >
-                    {hm.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 2: Instructions */}
-            <div className="p-3.5 flex flex-col gap-2">
-              <span className="text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase">
-                Pro Tip
-              </span>
-              <p className="text-xs text-[#8f94a8] leading-relaxed">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-[#23242c] text-[#f2f2f5] border border-[#2e303b] font-mono text-[10px]">Spacebar</kbd> anytime to generate new harmonic palettes. Click the padlock icon to lock swatches you love!
-              </p>
-            </div>
-          </div>
-        </aside>
-      )}
-
-      {/* 2. Central Palette Viewport */}
-      <main className="relative flex-1 h-full studio-grid-bg flex flex-col items-center justify-between p-4 sm:p-6 overflow-hidden select-none">
-        {/* Top Floating Action Bar */}
-        <div className="z-10 shrink-0 flex items-center gap-2">
+        {/* Right Header Action Buttons */}
+        <div className="flex items-center gap-2">
+          {/* Generate Palette Spacebar button */}
           <button
             type="button"
-            onClick={generateHarmony}
-            className="studio-btn studio-btn-secondary"
-            title="Generate new harmonies (Spacebar)"
+            onClick={generatePalette}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-neutral-200 text-black text-xs font-bold transition-all shadow-md cursor-pointer transform hover:scale-[1.02]"
+            title="Generate new palette (Spacebar)"
           >
-            <Shuffle className="w-3.5 h-3.5 text-[#818cf8]" />
-            <span>Shuffle (Space)</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#6366f1]" />
+            <span>Generate Palette</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-black/10 text-black/70 font-mono text-[10px] font-semibold border border-black/15">
+              SPACEBAR
+            </kbd>
           </button>
+
+          {/* Save Button */}
           <button
             type="button"
-            onClick={copyCssVars}
-            className="studio-btn studio-btn-secondary"
-            title="Copy CSS Variables"
+            onClick={savePaletteToStorage}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-semibold text-[#f2f2f5] transition-all cursor-pointer"
+            title="Save Palette"
           >
-            {copiedHex === 'CSS' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <FileCode className="w-3.5 h-3.5" />}
-            <span>{copiedHex === 'CSS' ? 'Copied CSS!' : 'CSS Variables'}</span>
+            <Bookmark className="w-3.5 h-3.5 text-[#818cf8]" />
+            <span>Save</span>
           </button>
+
+          {/* Share Button */}
+          <button
+            type="button"
+            onClick={() => {
+              const url = `${window.location.origin}${window.location.pathname}#palette=${colors.map((c) => c.hex.replace('#', '')).join('-')}`;
+              copyToClipboard(url, 'Shareable Link');
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2a2b36] text-xs font-semibold text-[#f2f2f5] transition-all cursor-pointer"
+            title="Copy Shareable Link"
+          >
+            <Share2 className="w-3.5 h-3.5 text-[#38bdf8]" />
+            <span>Share</span>
+          </button>
+
+          {/* Export Modal Button */}
           <button
             type="button"
             onClick={() => setIsExportModalOpen(true)}
-            className="studio-btn studio-btn-primary"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#6366f1] hover:bg-[#4f46e5] text-xs font-bold text-white transition-all cursor-pointer shadow-md"
             title="Export Palette"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export</span>
           </button>
-        </div>
 
-        {/* Center Swatches Grid */}
-        <div className="relative w-full flex-1 max-w-5xl flex items-center justify-center min-h-0 my-2">
-          <div className="w-full h-full max-h-[520px] rounded-2xl border border-[#2e303b] shadow-[0_24px_60px_rgba(0,0,0,0.8)] overflow-hidden flex divide-x divide-white/10 bg-[#16171d]">
-            {colors.map((color, idx) => {
+        </div>
+      </header>
+
+      {/* 2. Main Center Canvas & Tints Section */}
+      <main className="flex-1 studio-grid-bg flex flex-col items-center justify-start p-6 sm:p-10 gap-8">
+        {/* Main Palette Columns Box */}
+        <div className="relative w-full max-w-5xl flex items-center justify-center">
+          {/* Main Color Swatches Container */}
+          <div
+            ref={paletteContainerRef}
+            className="relative w-full h-[360px] sm:h-[400px] rounded-3xl border border-[#2e303b] shadow-[0_24px_60px_rgba(0,0,0,0.8)] overflow-hidden flex divide-x divide-black/10 bg-[#16171d]"
+          >
+            {colors.map((color, index) => {
               const isDark = getLuminance(color.hex) < 0.5;
               const textColor = isDark ? '#ffffff' : '#000000';
+              const cleanHex = color.hex.replace('#', '').toUpperCase();
+              const isPickerOpen = activeColorPickerId === color.id;
 
               return (
                 <div
-                  key={idx}
-                  className="group relative flex-1 h-full flex flex-col items-center justify-between p-6 transition-all duration-300 hover:flex-[1.2] select-none"
+                  key={color.id}
+                  className="group relative flex-1 h-full flex flex-col justify-between p-5 transition-all duration-300 select-none"
                   style={{ backgroundColor: color.hex }}
                 >
-                  {/* Top Swatch Actions */}
-                  <div className="w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      type="button"
-                      onClick={() => toggleLock(idx)}
-                      className={`p-2 rounded-xl backdrop-blur-md transition-all cursor-pointer ${
-                        color.isLocked
-                          ? 'bg-white text-black shadow-lg'
-                          : 'bg-black/30 text-white hover:bg-black/50'
+                  {/* Floating Action Toolbar (Appears on Column Hover) */}
+                  <div className="w-full flex justify-end">
+                    <div
+                      className={`flex flex-col items-center gap-1.5 p-1.5 rounded-2xl backdrop-blur-xl border border-white/20 transition-all duration-200 shadow-xl ${
+                        color.isLocked || isPickerOpen
+                          ? 'opacity-100 bg-black/40'
+                          : 'opacity-0 group-hover:opacity-100 bg-black/30'
                       }`}
-                      title={color.isLocked ? 'Unlock color' : 'Lock color'}
                     >
-                      {color.isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                    </button>
-                    <input
-                      type="color"
-                      value={color.hex}
-                      onChange={(e) => updateColorHex(idx, e.target.value)}
-                      className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent opacity-80 hover:opacity-100"
-                    />
+                      {/* 1. Lock / Unlock */}
+                      <button
+                        type="button"
+                        onClick={() => toggleLock(color.id)}
+                        className={`p-2 rounded-xl transition-all cursor-pointer ${
+                          color.isLocked
+                            ? 'bg-white text-black shadow-md'
+                            : 'text-white/80 hover:text-white hover:bg-white/20'
+                        }`}
+                        title={color.isLocked ? 'Unlock color' : 'Lock color'}
+                      >
+                        {color.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                      </button>
+
+                      {/* 2. Edit Color */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveColorPickerId(isPickerOpen ? null : color.id)}
+                        className={`p-2 rounded-xl transition-all cursor-pointer ${
+                          isPickerOpen
+                            ? 'bg-white text-black shadow-md'
+                            : 'text-white/80 hover:text-white hover:bg-white/20'
+                        }`}
+                        title="Edit color"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* 3. Copy Hex */}
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(color.hex, color.hex)}
+                        className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-all cursor-pointer"
+                        title="Copy HEX code"
+                      >
+                        {copiedHex === color.hex ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+
+                      {/* 4. Move Left/Right */}
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => moveColumn(index, 'left')}
+                          className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-all cursor-pointer"
+                          title="Move left"
+                        >
+                          <ArrowLeftRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      {/* 5. Delete Column */}
+                      {colors.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => removeColorColumn(color.id)}
+                          className="p-2 rounded-xl text-white/80 hover:text-red-400 hover:bg-red-500/20 transition-all cursor-pointer"
+                          title="Delete color"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Center Hex & Copy */}
-                  <div className="flex flex-col items-center gap-2">
+                  {/* Popover Color Picker Dropdown */}
+                  {isPickerOpen && (
+                    <div
+                      ref={colorPickerRef}
+                      className="absolute top-20 right-4 z-50 p-3 bg-[#16171d] rounded-2xl shadow-2xl border border-[#2e303b] flex flex-col gap-2.5 min-w-[180px] animate-in fade-in"
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={color.hex}
+                          onChange={(e) => updateColorHex(color.id, e.target.value)}
+                          className="w-9 h-9 rounded-xl cursor-pointer border border-[#2e303b] p-0.5 bg-transparent"
+                        />
+                        <input
+                          type="text"
+                          value={color.hex.toUpperCase()}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val.startsWith('#') && val.length <= 7) {
+                              updateColorHex(color.id, val);
+                            } else if (!val.startsWith('#') && val.length <= 6) {
+                              updateColorHex(color.id, '#' + val);
+                            }
+                          }}
+                          className="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-xl bg-[#23242c] border border-[#2e303b] text-[#f2f2f5] outline-none focus:border-[#818cf8]"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bottom Hex Code Display */}
+                  <div className="flex flex-col items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => copyColor(color.hex)}
-                      className="font-mono text-lg font-bold tracking-wider uppercase px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
-                      style={{
-                        color: textColor,
-                        backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'
-                      }}
-                    >
-                      {copiedHex === color.hex ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      <span>{color.hex}</span>
-                    </button>
-                    <span
-                      className="text-[11px] font-mono tracking-wide opacity-80"
+                      onClick={() => copyToClipboard(color.hex, color.hex)}
+                      className="font-mono text-base sm:text-lg font-black tracking-wider uppercase px-3 py-1 rounded-xl transition-all cursor-pointer transform hover:scale-105"
                       style={{ color: textColor }}
+                      title="Click to copy HEX"
                     >
-                      Color {idx + 1}
-                    </span>
-                  </div>
-
-                  {/* Bottom WCAG Badge */}
-                  <div
-                    className="px-2.5 py-1 rounded-full text-[10px] font-bold font-mono tracking-wider backdrop-blur-md flex items-center gap-1 shadow-sm"
-                    style={{
-                      color: textColor,
-                      backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    <span>WCAG: {isDark ? 'AAA On Light' : 'AAA On Dark'}</span>
+                      {cleanHex}
+                    </button>
                   </div>
                 </div>
               );
             })}
           </div>
+
+          {/* Floating Right (+) Add Color Button */}
+          {colors.length < 8 && (
+            <button
+              type="button"
+              onClick={addColorColumn}
+              className="absolute -right-5 z-20 w-10 h-10 rounded-full bg-white text-black hover:bg-neutral-200 border-2 border-[#0e0f14] shadow-2xl flex items-center justify-center transition-all transform hover:scale-110 cursor-pointer"
+              title="Add color column (+)"
+            >
+              <Plus className="w-5 h-5 font-bold" />
+            </button>
+          )}
         </div>
 
-        {/* Bottom Toolbar & Feedback */}
-        <div className="w-full shrink-0 flex items-center justify-between text-xs text-[#686c82] px-2 pt-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-[#8f94a8]">Harmonious algorithmic palette generation</span>
-          </div>
-          <div className="font-mono text-[10px] text-[#686c82]">
-            {harmony.toUpperCase()}
-          </div>
+        {/* 3. Tints & Shades Columns Underneath */}
+        <div className="w-full max-w-5xl flex gap-3 sm:gap-4 items-start justify-center">
+          {colors.map((color) => {
+            const tintsAndShades = generateTintsAndShades(color.hex, 10);
+
+            return (
+              <div key={`ts-${color.id}`} className="flex-1 flex flex-col items-center gap-2">
+                <span className="text-[10px] font-bold text-[#8f94a8] uppercase tracking-wider">
+                  TINTS & SHADES
+                </span>
+
+                <div className="w-full rounded-2xl border border-[#2e303b] overflow-hidden bg-[#16171d] shadow-xl flex flex-col divide-y divide-black/15">
+                  {tintsAndShades.map((shadeHex, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => copyToClipboard(shadeHex, shadeHex)}
+                      className="w-full h-6 sm:h-7 transition-all duration-150 hover:scale-[1.04] hover:z-10 cursor-pointer relative group flex items-center justify-center shadow-xs"
+                      style={{ backgroundColor: shadeHex }}
+                      title={`Copy ${shadeHex.toUpperCase()}`}
+                    >
+                      <span className="opacity-0 group-hover:opacity-100 font-mono text-[9px] font-black px-1.5 py-0.5 rounded bg-black/70 text-white shadow-md transition-opacity">
+                        {shadeHex.toUpperCase()}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </main>
 
-      {/* 3. Right Presets Sidebar */}
-      {isRightCollapsed ? (
-        <div className="w-10 h-full shrink-0 border-l border-[#23242c] bg-[#16171d] flex flex-col items-center py-4 z-20">
-          <button
-            type="button"
-            onClick={() => setIsRightCollapsed(false)}
-            className="p-1.5 rounded-lg text-[#8f94a8] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
-            title="Expand presets"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
+      {/* Floating Copied Toast */}
+      {copiedToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-[#16171d] border border-[#2e303b] text-xs font-bold text-[#f2f2f5] shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{copiedToast}</span>
         </div>
-      ) : (
-        <aside className="w-72 h-full min-h-0 shrink-0 border-l border-[#23242c] bg-[#16171d] flex flex-col z-20 overflow-hidden select-none">
-          {/* Header */}
-          <div className="p-3.5 shrink-0 border-b border-[#23242c] flex flex-col gap-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#818cf8]" />
-                <span className="text-[11px] font-bold text-[#8f94a8] tracking-wider uppercase">Palettes</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={saveCurrentAsPreset}
-                  title="Save current look"
-                  className="p-1 rounded-lg hover:bg-[#23242c] text-[#8f94a8] hover:text-[#f2f2f5] transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsRightCollapsed(true)}
-                  title="Collapse presets"
-                  className="p-1 rounded-lg hover:bg-[#23242c] text-[#686c82] hover:text-[#f2f2f5] transition-colors cursor-pointer ml-1"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Tab switch */}
-            <div className="grid grid-cols-2 p-0.5 rounded-full bg-[#23242c] border border-[#2e303b] text-xs">
-              <button
-                type="button"
-                onClick={() => setPresetTab('curated')}
-                className={`py-1 rounded-full transition-all cursor-pointer ${
-                  presetTab === 'curated'
-                    ? 'bg-[#16171d] text-[#f2f2f5] shadow-xs font-semibold'
-                    : 'text-[#8f94a8] hover:text-[#f2f2f5]'
-                }`}
-              >
-                Curated ({CURATED_PALETTES.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setPresetTab('saved')}
-                className={`py-1 rounded-full transition-all cursor-pointer ${
-                  presetTab === 'saved'
-                    ? 'bg-[#16171d] text-[#f2f2f5] shadow-xs font-semibold'
-                    : 'text-[#8f94a8] hover:text-[#f2f2f5]'
-                }`}
-              >
-                Saved ({customPresets.length})
-              </button>
-            </div>
-
-            {/* Search */}
-            <input
-              type="text"
-              placeholder="Search palettes..."
-              value={searchPreset}
-              onChange={(e) => setSearchPreset(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs rounded-lg bg-[#23242c] border border-[#2e303b] text-[#f2f2f5] placeholder-[#686c82] outline-none focus:border-[#818cf8]"
-            />
-          </div>
-
-          {/* Presets Grid */}
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-2.5 custom-scrollbar overscroll-contain pb-10">
-            {filteredPresets.map((palette) => {
-              const isSelected = selectedPresetId === palette.id;
-
-              return (
-                <div
-                  key={palette.id}
-                  onClick={() => applyCurated(palette)}
-                  className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col gap-2 ${
-                    isSelected
-                      ? 'border-[#818cf8] bg-[#818cf8]/15 ring-2 ring-[#818cf8]/40 shadow-[0_0_12px_rgba(129,140,248,0.25)]'
-                      : 'border-[#2e303b] hover:border-[#484b5c] bg-[#1a1b24] hover:bg-[#20222d]'
-                  }`}
-                >
-                  <div className="w-full h-8 rounded-lg overflow-hidden flex border border-black/30">
-                    {palette.colors.map((c, i) => (
-                      <div key={i} className="flex-1 h-full" style={{ backgroundColor: c }} />
-                    ))}
-                  </div>
-
-                  <div className="w-full flex items-center justify-between px-0.5">
-                    <span className="text-[11px] font-semibold text-[#8f94a8] group-hover:text-[#f2f2f5] truncate">
-                      {palette.name}
-                    </span>
-                  </div>
-
-                  {presetTab === 'saved' && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteCustomPreset(palette.id);
-                      }}
-                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 text-white bg-black/70 hover:bg-red-500 transition-all rounded-md"
-                      title="Delete preset"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </aside>
       )}
 
       {/* Export Modal */}
       {isExportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-[#16171d] rounded-2xl shadow-2xl border border-[#2e303b] overflow-hidden flex flex-col text-[#f2f2f5]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-[#16171d] rounded-3xl shadow-2xl border border-[#2e303b] overflow-hidden flex flex-col text-[#f2f2f5]">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#23242c]">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#818cf8]/15 text-[#818cf8] flex items-center justify-center">
-                  <Palette className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-xl bg-[#6366f1]/15 text-[#818cf8] flex items-center justify-center">
+                  <Download className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#f2f2f5]">Export Color Palette</h3>
-                  <p className="text-xs text-[#8f94a8]">Copy CSS Variables, Tailwind, or JSON</p>
+                  <h3 className="text-sm font-bold text-[#f2f2f5]">Export Color Palette</h3>
+                  <p className="text-xs text-[#8f94a8]">Export formats & code snippets</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsExportModalOpen(false)}
-                className="p-1 rounded-lg text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#686c82] hover:text-[#f2f2f5] hover:bg-[#23242c] transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -558,22 +556,24 @@ export const HarmonicPaletteStudio: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  copyCssVars();
+                  const css = `:root {\n${colors.map((c, i) => `  --color-${i + 1}: ${c.hex};`).join('\n')}\n}`;
+                  copyToClipboard(css, 'CSS Variables');
                   setIsExportModalOpen(false);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2e303d] hover:border-[#818cf8] text-xs font-semibold text-[#f2f2f5] flex items-center justify-between transition-all cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2e303d] hover:border-[#818cf8] text-xs font-semibold text-[#f2f2f5] flex items-center justify-between transition-all cursor-pointer"
               >
                 <span>CSS Variables (:root)</span>
-                <Copy className="w-3.5 h-3.5 text-[#818cf8]" />
+                <FileCode className="w-3.5 h-3.5 text-[#818cf8]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => {
-                  copyTailwind();
+                  const tw = `colors: {\n  palette: {\n${colors.map((c, i) => `    ${(i + 1) * 100}: '${c.hex}',`).join('\n')}\n  }\n}`;
+                  copyToClipboard(tw, 'Tailwind Theme');
                   setIsExportModalOpen(false);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2e303d] hover:border-[#818cf8] text-xs font-semibold text-[#f2f2f5] flex items-center justify-between transition-all cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2e303d] hover:border-[#818cf8] text-xs font-semibold text-[#f2f2f5] flex items-center justify-between transition-all cursor-pointer"
               >
                 <span>Tailwind Config Theme</span>
                 <Copy className="w-3.5 h-3.5 text-[#818cf8]" />
@@ -582,10 +582,11 @@ export const HarmonicPaletteStudio: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  copyJson();
+                  const json = JSON.stringify(colors.map((c) => c.hex), null, 2);
+                  copyToClipboard(json, 'JSON Array');
                   setIsExportModalOpen(false);
                 }}
-                className="w-full py-2.5 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2e303d] hover:border-[#818cf8] text-xs font-semibold text-[#f2f2f5] flex items-center justify-between transition-all cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl border border-[#2e303b] bg-[#23242c] hover:bg-[#2e303d] hover:border-[#818cf8] text-xs font-semibold text-[#f2f2f5] flex items-center justify-between transition-all cursor-pointer"
               >
                 <span>JSON Array of Hex Codes</span>
                 <Copy className="w-3.5 h-3.5 text-[#818cf8]" />
@@ -598,20 +599,62 @@ export const HarmonicPaletteStudio: React.FC = () => {
   );
 };
 
-// Color Utility Functions
-function hexToHsl(hex: string) {
-  let r = 0,
-    g = 0,
-    b = 0;
-  if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (hex.length === 7) {
-    r = parseInt(hex.slice(1, 3), 16);
-    g = parseInt(hex.slice(3, 5), 16);
-    b = parseInt(hex.slice(5, 7), 16);
+// Generate 10 tints & shades for a base hex
+function generateTintsAndShades(hex: string, steps: number = 10): string[] {
+  const tintsCount = Math.floor(steps / 2);
+  const shadesCount = steps - tintsCount;
+
+  // Tints (towards #ffffff)
+  const tints: string[] = [];
+  for (let i = tintsCount; i >= 1; i--) {
+    const factor = i / (tintsCount + 1);
+    tints.push(interpolateColor(hex, '#ffffff', factor));
   }
+
+  // Shades (towards #000000)
+  const shades: string[] = [];
+  for (let i = 1; i <= shadesCount; i++) {
+    const factor = i / (shadesCount + 1);
+    shades.push(interpolateColor(hex, '#000000', factor));
+  }
+
+  return [...tints, ...shades];
+}
+
+// Interpolate between two colors
+function interpolateColor(c1: string, c2: string, factor: number): string {
+  const rgb1 = hexToRgb(c1);
+  const rgb2 = hexToRgb(c2);
+
+  const r = Math.round(rgb1.r + factor * (rgb2.r - rgb1.r));
+  const g = Math.round(rgb1.g + factor * (rgb2.g - rgb1.g));
+  const b = Math.round(rgb1.b + factor * (rgb2.b - rgb1.b));
+
+  return rgbToHex(r, g, b);
+}
+
+function hexToRgb(hex: string) {
+  let clean = hex.replace('#', '');
+  if (clean.length === 3) clean = clean.split('').map((c) => c + c).join('');
+  const num = parseInt(clean, 16);
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const toHex = (n: number) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function getRandomHex(): string {
+  return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`;
+}
+
+function hexToHsl(hex: string) {
+  let { r, g, b } = hexToRgb(hex);
   r /= 255;
   g /= 255;
   b /= 255;
@@ -676,22 +719,13 @@ function hslToHex(h: number, s: number, l: number) {
     b = x;
   }
 
-  const toHex = (n: number) => {
-    const hex = Math.round((n + m) * 255).toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  };
+  const toHex = (n: number) => Math.round((n + m) * 255).toString(16).padStart(2, '0');
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
 function getLuminance(hex: string) {
-  let r = 0,
-    g = 0,
-    b = 0;
-  if (hex.length === 7) {
-    r = parseInt(hex.slice(1, 3), 16) / 255;
-    g = parseInt(hex.slice(3, 5), 16) / 255;
-    b = parseInt(hex.slice(5, 7), 16) / 255;
-  }
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const { r, g, b } = hexToRgb(hex);
+  return 0.2126 * (r / 255) + 0.7152 * (g / 255) + 0.0722 * (b / 255);
 }
+
 
