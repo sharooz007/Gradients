@@ -1,229 +1,248 @@
-import React, { useState, useEffect } from 'react';
-import { Copy, Check, Palette, RefreshCw, Lock, Unlock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Copy, Check, Lock, Unlock, RotateCw, Palette } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { SegmentedPicker } from '../../components/controls/SegmentedPicker';
-import { hexToRgb, rgbToHex } from '../../utils/colorUtils';
 
-type HarmonyType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'monochromatic';
+interface PaletteColor {
+  hex: string;
+  isLocked: boolean;
+}
 
 export const HarmonicPaletteStudio: React.FC = () => {
-  const [baseHex, setBaseHex] = useState<string>('#444CF7');
-  const [harmony, setHarmony] = useState<HarmonyType>('analogous');
-  const [palette, setPalette] = useState<string[]>([]);
-  const [locked, setLocked] = useState<boolean[]>([false, false, false, false, false]);
-  const [copied, setCopied] = useState(false);
+  const [harmony, setHarmony] = useState<'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'monochromatic'>('analogous');
+  const [colors, setColors] = useState<PaletteColor[]>([
+    { hex: '#3B82F6', isLocked: false },
+    { hex: '#10B981', isLocked: false },
+    { hex: '#F59E0B', isLocked: false },
+    { hex: '#EC4899', isLocked: false },
+    { hex: '#8B5CF6', isLocked: false }
+  ]);
+  const [copiedHex, setCopiedHex] = useState<string | null>(null);
 
-  // HSL conversion helpers
-  const hexToHsl = (hex: string) => {
-    const { r, g, b } = hexToRgb(hex);
-    const rNorm = r / 255;
-    const gNorm = g / 255;
-    const bNorm = b / 255;
-    const max = Math.max(rNorm, gNorm, bNorm);
-    const min = Math.min(rNorm, gNorm, bNorm);
-    let h = 0;
-    let s = 0;
-    const l = (max + min) / 2;
+  // Generate Harmonious Colors based on Base Color and Harmony Mode
+  const generateHarmony = () => {
+    const baseHex = colors[0].hex;
+    const baseHsl = hexToHsl(baseHex);
 
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case rNorm: h = (gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0); break;
-        case gNorm: h = (bNorm - rNorm) / d + 2; break;
-        case bNorm: h = (rNorm - gNorm) / d + 4; break;
+    const offsets: Record<typeof harmony, number[]> = {
+      analogous: [0, 30, 60, -30, -60],
+      complementary: [0, 180, 20, 200, 40],
+      triadic: [0, 120, 240, 60, 180],
+      tetradic: [0, 90, 180, 270, 45],
+      monochromatic: [0, 0, 0, 0, 0]
+    };
+
+    const currentOffsets = offsets[harmony];
+
+    const nextColors = colors.map((col, idx) => {
+      if (col.isLocked) return col;
+
+      if (harmony === 'monochromatic') {
+        const lumSteps = [0.2, 0.4, 0.6, 0.8, 0.95];
+        return {
+          ...col,
+          hex: hslToHex(baseHsl.h, baseHsl.s, lumSteps[idx])
+        };
+      } else {
+        const offset = currentOffsets[idx];
+        const newH = (baseHsl.h + offset + 360) % 360;
+        return {
+          ...col,
+          hex: hslToHex(newH, Math.max(0.4, baseHsl.s), Math.max(0.3, Math.min(0.7, baseHsl.l)))
+        };
       }
-      h /= 6;
-    }
-    return { h: h * 360, s, l };
-  };
-
-  const hslToHex = (h: number, s: number, l: number) => {
-    h = (h % 360 + 360) % 360;
-    const c = (1 - Math.abs(2 * l - 1)) * s;
-    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-    const m = l - c / 2;
-    let r = 0, g = 0, b = 0;
-
-    if (0 <= h && h < 60) { r = c; g = x; b = 0; }
-    else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
-    else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
-    else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
-    else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
-    else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
-
-    return rgbToHex({
-      r: Math.round((r + m) * 255),
-      g: Math.round((g + m) * 255),
-      b: Math.round((b + m) * 255)
     });
+
+    setColors(nextColors);
   };
 
-  const generateHarmonies = (hex: string, rule: HarmonyType): string[] => {
-    const { h, s, l } = hexToHsl(hex);
-
-    switch (rule) {
-      case 'analogous':
-        return [
-          hslToHex(h - 40, s, l),
-          hslToHex(h - 20, s, l),
-          hex,
-          hslToHex(h + 20, s, l),
-          hslToHex(h + 40, s, l)
-        ];
-      case 'complementary':
-        return [
-          hslToHex(h, s, Math.min(0.9, l + 0.2)),
-          hex,
-          hslToHex(h + 180, s, l),
-          hslToHex(h + 180, s, Math.min(0.9, l + 0.2)),
-          hslToHex(h + 180, s, Math.max(0.1, l - 0.2))
-        ];
-      case 'triadic':
-        return [
-          hex,
-          hslToHex(h + 120, s, l),
-          hslToHex(h + 240, s, l),
-          hslToHex(h + 120, s, Math.min(0.9, l + 0.25)),
-          hslToHex(h + 240, s, Math.max(0.1, l - 0.25))
-        ];
-      case 'tetradic':
-        return [
-          hex,
-          hslToHex(h + 90, s, l),
-          hslToHex(h + 180, s, l),
-          hslToHex(h + 270, s, l),
-          hslToHex(h + 90, s, Math.min(0.9, l + 0.2))
-        ];
-      case 'monochromatic':
-        return [
-          hslToHex(h, s, 0.15),
-          hslToHex(h, s, 0.35),
-          hex,
-          hslToHex(h, s, 0.70),
-          hslToHex(h, s, 0.90)
-        ];
-    }
+  const toggleLock = (index: number) => {
+    setColors((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, isLocked: !c.isLocked } : c))
+    );
   };
 
-  useEffect(() => {
-    const generated = generateHarmonies(baseHex, harmony);
-    setPalette((prev) => {
-      if (prev.length === 0) return generated;
-      return generated.map((col, idx) => (locked[idx] ? prev[idx] : col));
-    });
-  }, [baseHex, harmony]);
-
-  const handleShuffleRandom = () => {
-    const randomHex = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
-    setBaseHex(randomHex);
+  const copyColor = (hex: string) => {
+    navigator.clipboard.writeText(hex);
+    setCopiedHex(hex);
+    setTimeout(() => setCopiedHex(null), 1500);
   };
 
-  const handleCopyPalette = () => {
-    navigator.clipboard.writeText(JSON.stringify(palette, null, 2));
-    setCopied(true);
-    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
-    setTimeout(() => setCopied(false), 2000);
+  const copyJson = () => {
+    const json = JSON.stringify(colors.map((c) => c.hex), null, 2);
+    navigator.clipboard.writeText(json);
+    setCopiedHex('ALL_JSON');
+    setTimeout(() => setCopiedHex(null), 2000);
+    confetti({ particleCount: 25, spread: 40 });
   };
 
   return (
-    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
-      {/* Sidebar Controls */}
-      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
+      {/* Left Control Sidebar */}
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Palette className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              Harmonic Palette Studio
+            <Palette className="w-4 h-4 text-[#0071e3]" />
+            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+              Harmonic Palette Generator
             </span>
           </div>
           <button
             type="button"
-            onClick={handleShuffleRandom}
-            className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 font-semibold cursor-pointer"
+            onClick={generateHarmony}
+            className="p-1.5 rounded-lg hover:bg-[#f2f2f7] text-[#86868b] hover:text-[#1d1d1f] transition-colors cursor-pointer"
+            title="Shuffle Colors"
           >
-            <RefreshCw className="w-3 h-3" />
-            <span>Shuffle</span>
+            <RotateCw className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Harmony Rule */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Color Harmony Rule
-          </label>
-          <SegmentedPicker<HarmonyType>
-            value={harmony}
-            onChange={setHarmony}
-            options={[
-              { value: 'analogous', label: 'Analogous' },
-              { value: 'complementary', label: 'Comp.' },
-              { value: 'triadic', label: 'Triadic' },
-              { value: 'monochromatic', label: 'Mono' }
-            ]}
-          />
-        </div>
-
-        {/* Base Color Picker */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Key Anchor Color
-          </label>
-          <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-            <input
-              type="color"
-              value={baseHex}
-              onChange={(e) => setBaseHex(e.target.value)}
-              className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
-            />
-            <input
-              type="text"
-              value={baseHex.toUpperCase()}
-              onChange={(e) => setBaseHex(e.target.value)}
-              className="w-24 px-2 py-1 text-xs font-mono rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none"
-            />
+        {/* Harmony Mode Selector */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+          <span className="text-xs font-medium text-[#1d1d1f]">Color Harmony Formula</span>
+          <div className="flex flex-col gap-1.5 text-xs">
+            {(['analogous', 'complementary', 'triadic', 'tetradic', 'monochromatic'] as const).map((h) => (
+              <button
+                key={h}
+                type="button"
+                onClick={() => setHarmony(h)}
+                className={`py-2 px-3 rounded-xl font-medium capitalize text-left transition-all cursor-pointer ${
+                  harmony === h
+                    ? 'bg-[#1d1d1f] text-white shadow-2xs'
+                    : 'bg-white text-[#86868b] hover:text-[#1d1d1f] border border-[#e5e5ea]'
+                }`}
+              >
+                {h} Harmony
+              </button>
+            ))}
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleCopyPalette}
-          className="w-full mt-auto py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-          <span>{copied ? 'Copied JSON!' : 'Copy Palette JSON'}</span>
-        </button>
+        {/* Export Action */}
+        <div className="mt-auto pt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={copyJson}
+            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+          >
+            {copiedHex === 'ALL_JSON' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
+            <span>{copiedHex === 'ALL_JSON' ? 'JSON Copied!' : 'Copy Palette JSON'}</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Main Preview */}
-      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-hidden">
-        <div className="w-full max-w-4xl h-[65vh] rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 flex">
-          {palette.map((hex, idx) => (
-            <div
-              key={idx}
-              className="flex-1 h-full flex flex-col justify-between p-6 transition-all duration-300 group relative"
-              style={{ backgroundColor: hex }}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  const nextLock = [...locked];
-                  nextLock[idx] = !nextLock[idx];
-                  setLocked(nextLock);
-                }}
-                className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md flex items-center justify-center text-white cursor-pointer shadow-xs"
+      {/* Main Interactive Palette Canvas / Swatches */}
+      <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-hidden select-none">
+        <div className="relative w-[760px] h-[450px] rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea] flex">
+          {colors.map((col, idx) => {
+            const isDark = getLuminance(col.hex) < 0.5;
+            return (
+              <div
+                key={idx}
+                className="flex-1 h-full flex flex-col justify-between p-6 transition-colors duration-200 group relative"
+                style={{ backgroundColor: col.hex }}
               >
-                {locked[idx] ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5 opacity-60" />}
-              </button>
+                {/* Top Lock Button */}
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => toggleLock(idx)}
+                    className={`p-2 rounded-full backdrop-blur-md transition-all cursor-pointer ${
+                      col.isLocked
+                        ? 'bg-black/60 text-white'
+                        : 'bg-white/40 text-black/80 opacity-0 group-hover:opacity-100 hover:bg-white/70'
+                    }`}
+                    title={col.isLocked ? 'Locked' : 'Click to Lock'}
+                  >
+                    {col.isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                  </button>
+                </div>
 
-              <div className="flex flex-col gap-1 bg-black/30 backdrop-blur-md p-3 rounded-2xl text-white">
-                <span className="text-sm font-mono font-bold">{hex.toUpperCase()}</span>
-                <span className="text-[10px] opacity-75">Click to lock</span>
+                {/* Bottom Color Details & Hex Copy */}
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copyColor(col.hex)}
+                    className={`px-3 py-1.5 rounded-xl font-mono text-sm font-bold tracking-wider backdrop-blur-md flex items-center justify-between transition-transform group-hover:scale-105 cursor-pointer ${
+                      isDark ? 'bg-white/20 text-white' : 'bg-black/15 text-[#1d1d1f]'
+                    }`}
+                  >
+                    <span>{col.hex.toUpperCase()}</span>
+                    {copiedHex === col.hex ? (
+                      <Check className="w-3.5 h-3.5 text-green-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5 opacity-60" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>
   );
 };
+
+// HSL / Hex Math Helpers
+function hexToHsl(hex: string) {
+  let r = parseInt(hex.slice(1, 3), 16) / 255;
+  let g = parseInt(hex.slice(3, 5), 16) / 255;
+  let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  let max = Math.max(r, g, b);
+  let min = Math.min(r, g, b);
+  let h = 0;
+  let s = 0;
+  let l = (max + min) / 2;
+
+  if (max !== min) {
+    let d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  return { h: h * 360, s, l };
+}
+
+function hslToHex(h: number, s: number, l: number) {
+  h = (h % 360) / 360;
+  let r: number, g: number, b: number;
+
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  const toHex = (x: number) => {
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function getLuminance(hex: string) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+}

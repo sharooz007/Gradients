@@ -48,29 +48,29 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   return (
-    <aside className="w-80 h-full max-h-full shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
-        {/* Colors Panel */}
-        <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 flex flex-col gap-3">
-          <ColorPickerGroup
-            colors={state.colors}
-            onChange={(cols) => onUpdateState({ colors: cols }, true)}
-            onShuffle={onShuffleColors}
-          />
-        </div>
+    <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-3.5 z-20 custom-scrollbar overscroll-contain">
+      {/* Colors Panel */}
+      <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3">
+        <ColorPickerGroup
+          colors={state.colors}
+          onChange={(cols) => onUpdateState({ colors: cols }, true)}
+          onShuffle={onShuffleColors}
+        />
+      </div>
 
-        {/* Wave Controls */}
-        <div className="bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
-          <button
-            type="button"
-            onClick={() => toggleSection('wave')}
-            className="w-full px-3.5 py-3 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <Waves className="w-4 h-4 text-indigo-500" />
-              <span>Wave Geometry</span>
-            </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.wave ? 'rotate-180' : ''}`} />
-          </button>
+      {/* Wave Controls */}
+      <div className="bg-[#fafafc] rounded-2xl border border-[#e5e5ea] overflow-hidden">
+        <button
+          type="button"
+          onClick={() => toggleSection('wave')}
+          className="w-full px-3.5 py-3 flex items-center justify-between text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider hover:bg-[#f2f2f7] transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <Waves className="w-4 h-4 text-[#0071e3]" />
+            <span>Wave Geometry</span>
+          </div>
+          <ChevronDown className={`w-3.5 h-3.5 text-[#86868b] transition-transform ${openSections.wave ? 'rotate-180' : ''}`} />
+        </button>
 
           {openSections.wave && (
             <div className="p-3.5 pt-0 flex flex-col gap-3.5 border-t border-slate-200/60 dark:border-slate-700/40">

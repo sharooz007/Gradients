@@ -1,47 +1,24 @@
 import React, { useState } from 'react';
-import { Copy, Check, Image as ImageIcon, Upload } from 'lucide-react';
+import { Upload, Pipette, Copy, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { rgbToHex } from '../../utils/colorUtils';
+
+interface ExtractedColor {
+  hex: string;
+  count: number;
+}
 
 export const ImagePaletteExtractorStudio: React.FC = () => {
-  const [colors, setColors] = useState<string[]>([
-    '#0F172A',
-    '#3B82F6',
-    '#60A5FA',
-    '#93C5FD',
-    '#DBEAFE'
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [sampleCount, setSampleCount] = useState<number>(6);
+  const [extractedColors, setExtractedColors] = useState<ExtractedColor[]>([
+    { hex: '#f59e0b', count: 1 },
+    { hex: '#10b981', count: 1 },
+    { hex: '#0284c7', count: 1 },
+    { hex: '#6366f1', count: 1 },
+    { hex: '#ec4899', count: 1 },
+    { hex: '#0f172a', count: 1 }
   ]);
-  const [previewSrc, setPreviewSrc] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-
-  const extractPaletteFromImg = (imgElement: HTMLImageElement) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 120;
-    canvas.height = 120;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.drawImage(imgElement, 0, 0, 120, 120);
-    const imgData = ctx.getImageData(0, 0, 120, 120).data;
-
-    // Simple color quantization / bucket sampling
-    const sampled: string[] = [];
-    const step = Math.floor(imgData.length / 24);
-
-    for (let i = 0; i < imgData.length; i += step) {
-      const r = imgData[i];
-      const g = imgData[i + 1];
-      const b = imgData[i + 2];
-      const hex = rgbToHex({ r, g, b });
-      if (!sampled.includes(hex)) {
-        sampled.push(hex);
-      }
-    }
-
-    // Pick top 6 distinct colors
-    setColors(sampled.slice(0, 6));
-    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-  };
+  const [copiedHex, setCopiedHex] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -49,70 +26,167 @@ export const ImagePaletteExtractorStudio: React.FC = () => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const src = ev.target?.result as string;
-      setPreviewSrc(src);
-      const img = new Image();
-      img.onload = () => extractPaletteFromImg(img);
-      img.src = src;
+      setImageSrc(src);
+      extractColorsFromImage(src);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleCopyPalette = () => {
-    navigator.clipboard.writeText(JSON.stringify(colors, null, 2));
-    setCopied(true);
-    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
-    setTimeout(() => setCopied(false), 2000);
+  const extractColorsFromImage = (src: string) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      canvas.width = 150;
+      canvas.height = 150;
+      ctx.drawImage(img, 0, 0, 150, 150);
+
+      const imgData = ctx.getImageData(0, 0, 150, 150).data;
+      const colorMap: Record<string, number> = {};
+
+      // Sample every 4th pixel for speed & quantization
+      for (let i = 0; i < imgData.length; i += 16) {
+        const r = Math.round(imgData[i] / 24) * 24;
+        const g = Math.round(imgData[i + 1] / 24) * 24;
+        const b = Math.round(imgData[i + 2] / 24) * 24;
+
+        const toHex = (n: number) => Math.min(255, n).toString(16).padStart(2, '0');
+        const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+
+        colorMap[hex] = (colorMap[hex] || 0) + 1;
+      }
+
+      const sorted = Object.entries(colorMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, sampleCount)
+        .map(([hex, count]) => ({ hex, count }));
+
+      setExtractedColors(sorted);
+      confetti({ particleCount: 30, spread: 45 });
+    };
+    img.src = src;
+  };
+
+  const copyColor = (hex: string) => {
+    navigator.clipboard.writeText(hex);
+    setCopiedHex(hex);
+    setTimeout(() => setCopiedHex(null), 1500);
+  };
+
+  const copyJson = () => {
+    navigator.clipboard.writeText(
+      JSON.stringify(extractedColors.map((c) => c.hex), null, 2)
+    );
+    setCopiedHex('ALL_JSON');
+    setTimeout(() => setCopiedHex(null), 2000);
   };
 
   return (
-    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
-      {/* Sidebar Controls */}
-      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-          <ImageIcon className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-            Palette Extractor
-          </span>
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
+      {/* Left Control Sidebar */}
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Pipette className="w-4 h-4 text-[#0071e3]" />
+            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+              Image Palette Extractor
+            </span>
+          </div>
         </div>
 
-        {/* Upload Button */}
-        <label className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 cursor-pointer transition-all bg-slate-50 dark:bg-slate-800/50">
-          <Upload className="w-6 h-6 text-indigo-500" />
-          <span className="font-semibold">Drop photo here or browse</span>
-          <span className="text-[10px] text-slate-400">Supports PNG, JPG, WebP</span>
-          <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-        </label>
+        {/* Upload Photo Button */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2.5">
+          <span className="text-xs font-medium text-[#1d1d1f]">Image Source</span>
+          <label className="apple-pill-btn apple-pill-btn-primary gap-1.5 cursor-pointer">
+            <Upload className="w-4 h-4" />
+            <span>{imageSrc ? 'Replace Image' : 'Upload Image to Extract'}</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </label>
+        </div>
 
-        {previewSrc && (
-          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 h-36">
-            <img src={previewSrc} alt="Uploaded sample" className="w-full h-full object-cover" />
+        {/* Sample Count Slider */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+          <div className="flex items-center justify-between text-xs text-[#86868b]">
+            <span>Extracted Color Count</span>
+            <span className="font-mono text-[#1d1d1f]">{sampleCount} swatches</span>
           </div>
-        )}
+          <input
+            type="range"
+            min="4"
+            max="8"
+            value={sampleCount}
+            onChange={(e) => {
+              const val = parseInt(e.target.value);
+              setSampleCount(val);
+              if (imageSrc) extractColorsFromImage(imageSrc);
+            }}
+            className="w-full"
+          />
+        </div>
 
-        <button
-          type="button"
-          onClick={handleCopyPalette}
-          className="w-full mt-auto py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-          <span>{copied ? 'Copied Hex Codes!' : 'Copy Palette JSON'}</span>
-        </button>
+        {/* Export Action */}
+        <div className="mt-auto pt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={copyJson}
+            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+          >
+            {copiedHex === 'ALL_JSON' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
+            <span>{copiedHex === 'ALL_JSON' ? 'JSON Copied!' : 'Copy Swatches JSON'}</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Preview */}
-      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-hidden">
-        <div className="w-full max-w-4xl h-[65vh] rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row">
-          {colors.map((hex, idx) => (
-            <div
-              key={idx}
-              className="flex-1 h-full flex flex-col justify-end p-6 transition-all duration-300 relative group"
-              style={{ backgroundColor: hex }}
-            >
-              <div className="bg-black/40 backdrop-blur-md p-3 rounded-xl text-white">
-                <span className="text-sm font-mono font-bold">{hex.toUpperCase()}</span>
+      {/* Main Extractor Canvas Visualizer Area */}
+      <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-y-auto custom-scrollbar select-none">
+        <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
+          {/* Image Display Card */}
+          <div className="relative w-full max-w-xl h-72 rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea] bg-white flex items-center justify-center">
+            {imageSrc ? (
+              <img
+                src={imageSrc}
+                alt="Source for extraction"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3 text-[#86868b]">
+                <div className="w-14 h-14 rounded-full bg-[#f2f2f7] flex items-center justify-center text-[#86868b]">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <p className="text-xs font-medium">Upload any photo to extract dominant color ramps</p>
               </div>
+            )}
+          </div>
+
+          {/* Extracted Swatches Card */}
+          <div className="w-full max-w-xl p-4 bg-white rounded-2xl shadow-xl border border-[#e5e5ea] flex flex-col gap-3">
+            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+              Extracted Swatches
+            </span>
+            <div className="flex h-16 rounded-xl overflow-hidden shadow-xs border border-[#e5e5ea]">
+              {extractedColors.map((col, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => copyColor(col.hex)}
+                  className="flex-1 h-full flex flex-col justify-end p-2 transition-transform hover:scale-105 cursor-pointer relative group"
+                  style={{ backgroundColor: col.hex }}
+                >
+                  <span className="text-[10px] font-mono text-white/90 opacity-0 group-hover:opacity-100 bg-black/60 rounded px-1 text-center">
+                    {copiedHex === col.hex ? 'Copied' : col.hex.toUpperCase()}
+                  </span>
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </main>
     </div>

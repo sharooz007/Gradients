@@ -1,98 +1,95 @@
 import React, { useState } from 'react';
-import { Copy, Check, Grid } from 'lucide-react';
+import { Copy, Check, Code } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { SliderControl } from '../../components/controls/SliderControl';
 
-interface PatternType {
-  id: string;
-  name: string;
-  generateCss: (fg: string, bg: string, size: number, stroke: number, angle: number) => string;
-}
-
-const PATTERN_TYPES: PatternType[] = [
+const CSS_PATTERNS = [
   {
     id: 'stripes-diagonal',
     name: 'Diagonal Stripes',
-    generateCss: (fg, bg, size, stroke, angle) =>
-      `background-color: ${bg}; background-image: repeating-linear-gradient(${angle}deg, ${fg} 0, ${fg} ${stroke}px, transparent ${stroke}px, transparent ${size}px);`
+    category: 'stripes',
+    css: (c1: string, c2: string, size: number) =>
+      `background: repeating-linear-gradient(45deg, ${c1}, ${c1} ${size}px, ${c2} ${size}px, ${c2} ${size * 2}px);`
   },
   {
     id: 'polka-dots',
-    name: 'Polka Dots',
-    generateCss: (fg, bg, size, stroke) =>
-      `background-color: ${bg}; background-image: radial-gradient(${fg} ${stroke}px, transparent ${stroke}px); background-size: ${size}px ${size}px;`
+    name: 'Polka Dots Matrix',
+    category: 'dots',
+    css: (c1: string, c2: string, size: number) =>
+      `background-color: ${c2};\nbackground-image: radial-gradient(${c1} 2px, transparent 2px);\nbackground-size: ${size}px ${size}px;`
   },
   {
     id: 'grid-lines',
-    name: 'Grid Lines',
-    generateCss: (fg, bg, size, stroke) =>
-      `background-color: ${bg}; background-image: linear-gradient(${fg} ${stroke}px, transparent ${stroke}px), linear-gradient(90deg, ${fg} ${stroke}px, transparent ${stroke}px); background-size: ${size}px ${size}px;`
+    name: 'Minimalist Grid',
+    category: 'grid',
+    css: (c1: string, c2: string, size: number) =>
+      `background-color: ${c2};\nbackground-image: linear-gradient(${c1} 1px, transparent 1px), linear-gradient(90deg, ${c1} 1px, transparent 1px);\nbackground-size: ${size}px ${size}px;`
   },
   {
     id: 'checkerboard',
-    name: 'Checkerboard',
-    generateCss: (fg, bg, size) =>
-      `background-color: ${bg}; background-image: linear-gradient(45deg, ${fg} 25%, transparent 25%), linear-gradient(-45deg, ${fg} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${fg} 75%), linear-gradient(-45deg, transparent 75%, ${fg} 75%); background-size: ${size}px ${size}px; background-position: 0 0, 0 ${size / 2}px, ${size / 2}px -${size / 2}px, -${size / 2}px 0px;`
+    name: 'Retro Checkerboard',
+    category: 'geometric',
+    css: (c1: string, c2: string, size: number) =>
+      `background-color: ${c2};\nbackground-image: linear-gradient(45deg, ${c1} 25%, transparent 25%), linear-gradient(-45deg, ${c1} 25%, transparent 25%), linear-gradient(45deg, transparent 75%, ${c1} 75%), linear-gradient(-45deg, transparent 75%, ${c1} 75%);\nbackground-size: ${size}px ${size}px;\nbackground-position: 0 0, 0 ${size / 2}px, ${size / 2}px -${size / 2}px, -${size / 2}px 0px;`
   },
   {
     id: 'crosshatch',
-    name: 'Crosshatch',
-    generateCss: (fg, bg, size, stroke) =>
-      `background-color: ${bg}; background-image: repeating-linear-gradient(45deg, ${fg} 0, ${fg} ${stroke}px, transparent ${stroke}px, transparent ${size}px), repeating-linear-gradient(-45deg, ${fg} 0, ${fg} ${stroke}px, transparent ${stroke}px, transparent ${size}px);`
+    name: 'Crosshatch Weave',
+    category: 'geometric',
+    css: (c1: string, c2: string, size: number) =>
+      `background: repeating-linear-gradient(45deg, ${c1} 0, ${c1} 1px, transparent 0, transparent 50%), repeating-linear-gradient(-45deg, ${c1} 0, ${c1} 1px, ${c2} 0, ${c2} 50%);\nbackground-size: ${size}px ${size}px;`
   },
   {
     id: 'zigzag',
-    name: 'Zig-Zag Chevron',
-    generateCss: (fg, bg, size) =>
-      `background-color: ${bg}; background-image: linear-gradient(135deg, ${fg} 25%, transparent 25%), linear-gradient(225deg, ${fg} 25%, transparent 25%), linear-gradient(315deg, ${fg} 25%, transparent 25%), linear-gradient(45deg, ${fg} 25%, transparent 25%); background-position: -${size/2}px 0, -${size/2}px 0, 0 0, 0 0; background-size: ${size}px ${size}px;`
+    name: 'Zig-zag Chevron',
+    category: 'waves',
+    css: (c1: string, c2: string, size: number) =>
+      `background-color: ${c2};\nbackground-image: linear-gradient(135deg, ${c1} 25%, transparent 25%), linear-gradient(225deg, ${c1} 25%, transparent 25%), linear-gradient(315deg, ${c1} 25%, transparent 25%), linear-gradient(45deg, ${c1} 25%, transparent 25%);\nbackground-position: -${size / 2}px 0, -${size / 2}px 0, 0 0, 0 0;\nbackground-size: ${size}px ${size}px;`
   }
 ];
 
 export const CssPatternStudio: React.FC = () => {
-  const [selectedPattern, setSelectedPattern] = useState<string>(PATTERN_TYPES[0].id);
-  const [fgColor, setFgColor] = useState<string>('#444CF7');
-  const [bgColor, setBgColor] = useState<string>('#FFFFFF');
-  const [size, setSize] = useState<number>(30);
-  const [stroke, setStroke] = useState<number>(2);
-  const [angle, setAngle] = useState<number>(45);
-  const [copied, setCopied] = useState(false);
+  const [selectedPatternId, setSelectedPatternId] = useState<string>('stripes-diagonal');
+  const [size, setSize] = useState<number>(24);
+  const [color1, setColor1] = useState<string>('#3b82f6');
+  const [color2, setColor2] = useState<string>('#eff6ff');
+  const [isCopied, setIsCopied] = useState(false);
 
-  const activePattern = PATTERN_TYPES.find((p) => p.id === selectedPattern) || PATTERN_TYPES[0];
-  const cssStyle = activePattern.generateCss(fgColor, bgColor, size, stroke, angle);
+  const activePattern = CSS_PATTERNS.find((p) => p.id === selectedPatternId) || CSS_PATTERNS[0];
+  const generatedCss = activePattern.css(color1, color2, size);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(cssStyle);
-    setCopied(true);
-    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
-    setTimeout(() => setCopied(false), 2000);
+  const copyCss = () => {
+    navigator.clipboard.writeText(generatedCss);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+    confetti({ particleCount: 25, spread: 40 });
   };
 
   return (
-    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
-      {/* Left Sidebar */}
-      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-          <Grid className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-            CSS Pattern Settings
-          </span>
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
+      {/* Left Control Sidebar */}
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Code className="w-4 h-4 text-[#0071e3]" />
+            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+              CSS Background Patterns
+            </span>
+          </div>
         </div>
 
-        {/* Pattern Types */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Pattern Style
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {PATTERN_TYPES.map((p) => (
+        {/* Pattern Selection Grid */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+          <span className="text-xs font-medium text-[#1d1d1f]">Pattern Types</span>
+          <div className="grid grid-cols-2 gap-1.5 text-xs">
+            {CSS_PATTERNS.map((p) => (
               <button
                 key={p.id}
                 type="button"
-                onClick={() => setSelectedPattern(p.id)}
-                className={`p-2.5 rounded-xl border text-xs font-semibold transition-all text-left ${
-                  selectedPattern === p.id
-                    ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                onClick={() => setSelectedPatternId(p.id)}
+                className={`py-2 px-2.5 rounded-xl font-medium text-left transition-all cursor-pointer ${
+                  selectedPatternId === p.id
+                    ? 'bg-[#1d1d1f] text-white shadow-2xs'
+                    : 'bg-white text-[#86868b] hover:text-[#1d1d1f] border border-[#e5e5ea]'
                 }`}
               >
                 {p.name}
@@ -101,82 +98,82 @@ export const CssPatternStudio: React.FC = () => {
           </div>
         </div>
 
-        {/* Colors */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Scale Slider */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+          <div className="flex items-center justify-between text-xs text-[#86868b]">
+            <span>Pattern Scale</span>
+            <span className="font-mono text-[#1d1d1f]">{size}px</span>
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="80"
+            value={size}
+            onChange={(e) => setSize(parseInt(e.target.value))}
+            className="w-full"
+          />
+        </div>
+
+        {/* 2-Color Palette */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] grid grid-cols-2 gap-2">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Foreground</span>
-            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <span className="text-[11px] text-[#86868b]">Foreground</span>
+            <div className="flex items-center gap-2">
               <input
                 type="color"
-                value={fgColor}
-                onChange={(e) => setFgColor(e.target.value)}
-                className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent"
+                value={color1}
+                onChange={(e) => setColor1(e.target.value)}
+                className="w-8 h-8 rounded-lg cursor-pointer border border-[#e5e5ea] p-0.5 bg-white"
               />
-              <span className="text-xs font-mono">{fgColor.toUpperCase()}</span>
+              <span className="text-xs font-mono text-[#1d1d1f]">{color1}</span>
             </div>
           </div>
-
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Background</span>
-            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+            <span className="text-[11px] text-[#86868b]">Background</span>
+            <div className="flex items-center gap-2">
               <input
                 type="color"
-                value={bgColor}
-                onChange={(e) => setBgColor(e.target.value)}
-                className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent"
+                value={color2}
+                onChange={(e) => setColor2(e.target.value)}
+                className="w-8 h-8 rounded-lg cursor-pointer border border-[#e5e5ea] p-0.5 bg-white"
               />
-              <span className="text-xs font-mono">{bgColor.toUpperCase()}</span>
+              <span className="text-xs font-mono text-[#1d1d1f]">{color2}</span>
             </div>
           </div>
         </div>
 
-        <SliderControl
-          label="Pattern Tile Size"
-          value={size}
-          min={10}
-          max={120}
-          step={2}
-          unit="px"
-          onChange={setSize}
-        />
-
-        <SliderControl
-          label="Stroke Width"
-          value={stroke}
-          min={1}
-          max={20}
-          step={1}
-          unit="px"
-          onChange={setStroke}
-        />
-
-        {selectedPattern === 'stripes-diagonal' && (
-          <SliderControl
-            label="Angle"
-            value={angle}
-            min={0}
-            max={360}
-            step={5}
-            isAngle={true}
-            onChange={setAngle}
-          />
-        )}
-
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="w-full mt-auto py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-          <span>{copied ? 'Copied CSS!' : 'Copy CSS Background'}</span>
-        </button>
+        {/* Export Action */}
+        <div className="mt-auto pt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={copyCss}
+            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+          >
+            {isCopied ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
+            <span>{isCopied ? 'CSS Code Copied!' : 'Copy CSS Background'}</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Preview */}
-      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-hidden">
+      {/* Main Pattern Canvas Preview Area */}
+      <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-hidden select-none">
         <div
-          className="w-full max-w-4xl h-[70vh] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 transition-all duration-200"
-          style={{ cssText: cssStyle } as any}
+          className="relative w-[720px] h-[480px] rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea]"
+          style={Object.fromEntries(
+            generatedCss
+              .split(';')
+              .map((line) => line.trim())
+              .filter(Boolean)
+              .map((line) => {
+                const [prop, val] = line.split(':');
+                return [
+                  prop
+                    .trim()
+                    .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase()),
+                  val ? val.trim() : ''
+                ];
+              })
+          )}
         />
       </main>
     </div>

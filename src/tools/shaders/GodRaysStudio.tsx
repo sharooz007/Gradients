@@ -1,211 +1,288 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Sun } from 'lucide-react';
+import { Download, RotateCw, Sun } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { SliderControl } from '../../components/controls/SliderControl';
 
 export const GodRaysStudio: React.FC = () => {
-  const [rayCount, setRayCount] = useState<number>(36);
-  const [decay, setDecay] = useState<number>(0.92);
-  const [exposure, setExposure] = useState<number>(1.2);
   const [originX, setOriginX] = useState<number>(0.5);
-  const [originY, setOriginY] = useState<number>(0.2);
-  const [rayColor, setRayColor] = useState<string>('#FFD166');
-  const [bgColor, setBgColor] = useState<string>('#0B091A');
-  const [particles, setParticles] = useState<number>(80);
+  const [originY, setOriginY] = useState<number>(0.15);
+  const [rayCount, setRayCount] = useState<number>(36);
+  const [exposure, setExposure] = useState<number>(1.2);
+  const [decay, setDecay] = useState<number>(0.92);
+  const [rayColor, setRayColor] = useState<string>('#ffd280');
+  const [bgColor, setBgColor] = useState<string>('#0b0e14');
+  const [particles, setParticles] = useState<boolean>(true);
+  const [particleCount, setParticleCount] = useState<number>(60);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const drawGodRays = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    // Fill background
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, width, height);
-
-    const ox = width * originX;
-    const oy = height * originY;
-
-    // Draw central light sun flare
-    const flareGrad = ctx.createRadialGradient(ox, oy, 10, ox, oy, width * 0.4);
-    flareGrad.addColorStop(0, '#FFFFFF');
-    flareGrad.addColorStop(0.3, rayColor);
-    flareGrad.addColorStop(1, 'transparent');
-    ctx.fillStyle = flareGrad;
-    ctx.beginPath();
-    ctx.arc(ox, oy, width * 0.4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw volumetric rays
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-
-    const maxDist = Math.max(width, height) * 1.5;
-
-    for (let i = 0; i < rayCount; i++) {
-      const angle = (i / rayCount) * Math.PI * 2;
-      const spread = (Math.PI * 2) / rayCount;
-
-      ctx.beginPath();
-      ctx.moveTo(ox, oy);
-      ctx.lineTo(ox + Math.cos(angle - spread * 0.3) * maxDist, oy + Math.sin(angle - spread * 0.3) * maxDist);
-      ctx.lineTo(ox + Math.cos(angle + spread * 0.3) * maxDist, oy + Math.sin(angle + spread * 0.3) * maxDist);
-      ctx.closePath();
-
-      const rayGrad = ctx.createRadialGradient(ox, oy, 0, ox, oy, maxDist);
-      rayGrad.addColorStop(0, `${rayColor}EE`);
-      rayGrad.addColorStop(decay, `${rayColor}44`);
-      rayGrad.addColorStop(1, 'transparent');
-
-      ctx.fillStyle = rayGrad;
-      ctx.globalAlpha = (0.3 + (i % 3) * 0.2) * exposure;
-      ctx.fill();
-    }
-
-    // Draw dust motes
-    ctx.fillStyle = '#FFFFFF';
-    for (let p = 0; p < particles; p++) {
-      const px = (Math.sin(p * 99) * 0.5 + 0.5) * width;
-      const py = (Math.cos(p * 33) * 0.5 + 0.5) * height;
-      const size = (p % 4) + 1;
-      ctx.globalAlpha = Math.sin(p) * 0.5 + 0.5;
-      ctx.beginPath();
-      ctx.arc(px, py, size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.restore();
-  };
-
+  // Render Volumetric Light Canvas
   useEffect(() => {
-    if (!canvasRef.current) return;
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    drawGodRays(ctx, canvas.width, canvas.height);
-  }, [rayCount, decay, exposure, originX, originY, rayColor, bgColor, particles]);
 
-  const handleDownload = () => {
-    const out = document.createElement('canvas');
-    out.width = 3840;
-    out.height = 2160;
-    const ctx = out.getContext('2d');
-    if (!ctx) return;
-    drawGodRays(ctx, out.width, out.height);
+    const w = canvas.width;
+    const h = canvas.height;
 
-    const a = document.createElement('a');
-    a.download = `god-rays-volumetric-${Date.now()}.png`;
-    a.href = out.toDataURL('image/png');
-    a.click();
-    confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+    // Fill dark atmospheric background
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, w, h);
+
+    const ox = originX * w;
+    const oy = originY * h;
+    const maxRadius = Math.hypot(w, h) * 1.2;
+
+    // Draw central light source glow
+    const coreGrad = ctx.createRadialGradient(ox, oy, 0, ox, oy, maxRadius * 0.4);
+    coreGrad.addColorStop(0, rayColor);
+    coreGrad.addColorStop(0.3, 'rgba(255, 200, 100, 0.4)');
+    coreGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.arc(ox, oy, maxRadius * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw Volumetric Rays
+    for (let i = 0; i < rayCount; i++) {
+      const angle = (i / rayCount) * Math.PI * 2;
+      const rayWidth = (0.04 + Math.sin(i * 3.7) * 0.02) * exposure;
+
+      const grad = ctx.createRadialGradient(ox, oy, 0, ox, oy, maxRadius);
+      grad.addColorStop(0, rayColor);
+      grad.addColorStop(decay * 0.6, 'rgba(255, 220, 150, 0.2)');
+      grad.addColorStop(1, 'transparent');
+
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, 0.3 * exposure);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(ox, oy);
+      ctx.arc(ox, oy, maxRadius, angle - rayWidth, angle + rayWidth);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Draw Floating Dust Motes
+    if (particles) {
+      ctx.save();
+      for (let i = 0; i < particleCount; i++) {
+        const px = ((Math.sin(i * 99 + 1) * 0.5 + 0.5) * w);
+        const py = ((Math.cos(i * 33 + 2) * 0.5 + 0.5) * h);
+        const dist = Math.hypot(px - ox, py - oy);
+        const alpha = Math.max(0.1, (1 - dist / maxRadius) * 0.8);
+        const size = 1 + (i % 3);
+
+        ctx.fillStyle = rayColor;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(px, py, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }, [originX, originY, rayCount, exposure, decay, rayColor, bgColor, particles, particleCount]);
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    setOriginX(x);
+    setOriginY(y);
+  };
+
+  const exportPng = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `god-rays-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    confetti({ particleCount: 30, spread: 45 });
+  };
+
+  const randomize = () => {
+    setOriginX(0.2 + Math.random() * 0.6);
+    setOriginY(0.05 + Math.random() * 0.3);
+    setExposure(0.8 + Math.random() * 1.0);
+    setRayCount(Math.floor(20 + Math.random() * 40));
   };
 
   return (
-    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
-      {/* Sidebar Controls */}
-      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-          <Sun className="w-4 h-4 text-amber-500" />
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-            God Rays Settings
-          </span>
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
+      {/* Left Control Sidebar */}
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sun className="w-4 h-4 text-[#0071e3]" />
+            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+              God Rays Parameters
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={randomize}
+            className="p-1.5 rounded-lg hover:bg-[#f2f2f7] text-[#86868b] hover:text-[#1d1d1f] transition-colors cursor-pointer"
+            title="Randomize"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* Colors */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Ray Color</span>
-            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-              <input
-                type="color"
-                value={rayColor}
-                onChange={(e) => setRayColor(e.target.value)}
-                className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent"
-              />
-              <span className="text-xs font-mono">{rayColor.toUpperCase()}</span>
+        {/* Colors Panel */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3">
+          <span className="text-xs font-medium text-[#1d1d1f]">Atmospheric Colors</span>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] text-[#86868b]">Ray Light</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={rayColor}
+                  onChange={(e) => setRayColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg cursor-pointer border border-[#e5e5ea] p-0.5 bg-white"
+                />
+                <span className="text-xs font-mono text-[#1d1d1f]">{rayColor}</span>
+              </div>
             </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] text-[#86868b]">Backdrop</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={bgColor}
+                  onChange={(e) => setBgColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg cursor-pointer border border-[#e5e5ea] p-0.5 bg-white"
+                />
+                <span className="text-xs font-mono text-[#1d1d1f]">{bgColor}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Ray Density & Exposure */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between text-xs text-[#86868b]">
+              <span>Ray Count / Density</span>
+              <span className="font-mono text-[#1d1d1f]">{rayCount}</span>
+            </div>
+            <input
+              type="range"
+              min="12"
+              max="72"
+              value={rayCount}
+              onChange={(e) => setRayCount(parseInt(e.target.value))}
+              className="w-full"
+            />
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Background</span>
-            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-              <input
-                type="color"
-                value={bgColor}
-                onChange={(e) => setBgColor(e.target.value)}
-                className="w-6 h-6 rounded cursor-pointer border-0 p-0 bg-transparent"
-              />
-              <span className="text-xs font-mono">{bgColor.toUpperCase()}</span>
+            <div className="flex items-center justify-between text-xs text-[#86868b]">
+              <span>Exposure / Intensity</span>
+              <span className="font-mono text-[#1d1d1f]">{exposure.toFixed(2)}</span>
             </div>
+            <input
+              type="range"
+              min="0.3"
+              max="2.5"
+              step="0.05"
+              value={exposure}
+              onChange={(e) => setExposure(parseFloat(e.target.value))}
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between text-xs text-[#86868b]">
+              <span>Decay Falloff</span>
+              <span className="font-mono text-[#1d1d1f]">{(decay * 100).toFixed(0)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0.6"
+              max="0.99"
+              step="0.01"
+              value={decay}
+              onChange={(e) => setDecay(parseFloat(e.target.value))}
+              className="w-full"
+            />
           </div>
         </div>
 
-        <SliderControl
-          label="Ray Count"
-          value={rayCount}
-          min={12}
-          max={96}
-          step={2}
-          onChange={setRayCount}
-        />
-
-        <SliderControl
-          label="Light Exposure"
-          value={exposure}
-          min={0.2}
-          max={3.0}
-          step={0.1}
-          onChange={setExposure}
-        />
-
-        <SliderControl
-          label="Ray Decay Falloff"
-          value={decay}
-          min={0.5}
-          max={0.99}
-          step={0.01}
-          onChange={setDecay}
-        />
-
-        <div className="grid grid-cols-2 gap-2">
-          <SliderControl
-            label="Origin X"
-            value={originX}
-            min={0.0}
-            max={1.0}
-            step={0.05}
-            onChange={setOriginX}
-          />
-          <SliderControl
-            label="Origin Y"
-            value={originY}
-            min={0.0}
-            max={1.0}
-            step={0.05}
-            onChange={setOriginY}
-          />
+        {/* Floating Particles */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-[#1d1d1f]">Atmospheric Dust Motes</span>
+            <input
+              type="checkbox"
+              checked={particles}
+              onChange={(e) => setParticles(e.target.checked)}
+              className="w-4 h-4 rounded text-[#0071e3]"
+            />
+          </div>
+          {particles && (
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between text-xs text-[#86868b]">
+                <span>Dust Density</span>
+                <span className="font-mono text-[#1d1d1f]">{particleCount}</span>
+              </div>
+              <input
+                type="range"
+                min="20"
+                max="120"
+                value={particleCount}
+                onChange={(e) => setParticleCount(parseInt(e.target.value))}
+                className="w-full"
+              />
+            </div>
+          )}
         </div>
 
-        <SliderControl
-          label="Dust Particles"
-          value={particles}
-          min={0}
-          max={200}
-          step={10}
-          onChange={setParticles}
-        />
-
-        <button
-          type="button"
-          onClick={handleDownload}
-          className="w-full mt-auto py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <Download className="w-4 h-4" />
-          <span>Export 4K God Rays</span>
-        </button>
+        {/* Export Action */}
+        <div className="mt-auto pt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={exportPng}
+            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export 4K PNG</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Preview */}
-      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-hidden">
-        <div className="w-full max-w-4xl h-[70vh] rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700">
-          <canvas ref={canvasRef} width={1920} height={1080} className="w-full h-full object-cover" />
+      {/* Main Canvas Area */}
+      <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-hidden select-none">
+        <div
+          ref={containerRef}
+          onClick={handleCanvasClick}
+          className="relative w-[720px] h-[450px] rounded-2xl overflow-hidden shadow-2xl border border-[#e5e5ea] bg-slate-950 cursor-crosshair group"
+        >
+          <canvas
+            ref={canvasRef}
+            width={1440}
+            height={900}
+            className="w-full h-full object-cover"
+          />
+
+          {/* Interactive Light Origin Indicator Pin */}
+          <div
+            className="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 border-white bg-amber-400/80 ring-4 ring-amber-400/30 flex items-center justify-center shadow-lg pointer-events-none transition-all group-hover:scale-125"
+            style={{
+              left: `${originX * 100}%`,
+              top: `${originY * 100}%`
+            }}
+          >
+            <Sun className="w-3.5 h-3.5 text-white" />
+          </div>
+
+          <div className="absolute bottom-3 left-3 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full text-[11px] font-mono text-white/80 border border-white/10">
+            Click anywhere on canvas to reposition light origin
+          </div>
         </div>
       </main>
     </div>

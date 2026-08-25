@@ -1,158 +1,167 @@
 import React, { useState } from 'react';
-import { Copy, Check, PaintBucket } from 'lucide-react';
+import { Copy, Check, Wand2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { hexToRgb, rgbToHex } from '../../utils/colorUtils';
 
-const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
+const SHADE_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 
 export const TailwindPaletteStudio: React.FC = () => {
-  const [baseHex, setBaseHex] = useState<string>('#6366F1');
-  const [name, setName] = useState<string>('brand');
-  const [copied, setCopied] = useState(false);
+  const [baseColor, setBaseColor] = useState<string>('#0284c7');
+  const [paletteName, setPaletteName] = useState<string>('brand');
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Generate 50–950 tints and shades
-  const generateTailwindScale = (hex: string) => {
-    const { r, g, b } = hexToRgb(hex);
-
-    const scale: Record<number, string> = {};
-
-    // 50 to 400 (blend towards white)
-    const lightFactors: Record<number, number> = {
-      50: 0.95,
-      100: 0.85,
-      200: 0.65,
-      300: 0.45,
-      400: 0.2
-    };
-
-    Object.entries(lightFactors).forEach(([shade, factor]) => {
-      scale[Number(shade)] = rgbToHex({
-        r: Math.round(r + (255 - r) * factor),
-        g: Math.round(g + (255 - g) * factor),
-        b: Math.round(b + (255 - b) * factor)
-      });
-    });
-
-    scale[500] = hex;
-
-    // 600 to 950 (blend towards dark tone)
-    const darkFactors: Record<number, number> = {
-      600: 0.85,
-      700: 0.68,
-      800: 0.5,
-      900: 0.35,
-      950: 0.18
-    };
-
-    Object.entries(darkFactors).forEach(([shade, factor]) => {
-      scale[Number(shade)] = rgbToHex({
-        r: Math.round(r * factor),
-        g: Math.round(g * factor),
-        b: Math.round(b * factor)
-      });
-    });
-
-    return scale;
+  // Generate 50-950 luminance shades from anchor 500
+  const shades: Record<number, string> = {
+    50: interpolateColor('#ffffff', baseColor, 0.1),
+    100: interpolateColor('#ffffff', baseColor, 0.22),
+    200: interpolateColor('#ffffff', baseColor, 0.4),
+    300: interpolateColor('#ffffff', baseColor, 0.6),
+    400: interpolateColor('#ffffff', baseColor, 0.8),
+    500: baseColor,
+    600: interpolateColor(baseColor, '#000000', 0.18),
+    700: interpolateColor(baseColor, '#000000', 0.38),
+    800: interpolateColor(baseColor, '#000000', 0.58),
+    900: interpolateColor(baseColor, '#000000', 0.75),
+    950: interpolateColor(baseColor, '#000000', 0.88)
   };
 
-  const scale = generateTailwindScale(baseHex);
+  const copyConfig = () => {
+    const jsObj = `// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        '${paletteName}': {
+${SHADE_STEPS.map((step) => `          ${step}: '${shades[step]}',`).join('\n')}
+        }
+      }
+    }
+  }
+};`;
 
-  const tailwindConfigCode = `'${name}': {\n${Object.entries(scale)
-    .map(([k, v]) => `  ${k}: '${v}',`)
-    .join('\n')}\n}`;
+    navigator.clipboard.writeText(jsObj);
+    setCopiedKey('CONFIG');
+    setTimeout(() => setCopiedKey(null), 2000);
+    confetti({ particleCount: 25, spread: 40 });
+  };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(tailwindConfigCode);
-    setCopied(true);
-    confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
-    setTimeout(() => setCopied(false), 2000);
+  const copyShade = (step: number, hex: string) => {
+    navigator.clipboard.writeText(hex);
+    setCopiedKey(`${step}`);
+    setTimeout(() => setCopiedKey(null), 1500);
   };
 
   return (
-    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
-      {/* Sidebar Controls */}
-      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-          <PaintBucket className="w-4 h-4 text-indigo-500" />
-          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-            Tailwind Palette Generator
-          </span>
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none bg-[#f5f5f7]">
+      {/* Left Control Sidebar */}
+      <aside className="w-80 h-full max-h-full shrink-0 border-r border-[#e5e5ea] bg-white overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Wand2 className="w-4 h-4 text-[#0071e3]" />
+            <span className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+              Tailwind Palette
+            </span>
+          </div>
         </div>
 
-        {/* Color Name */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Color Key Name
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none"
-          />
-        </div>
-
-        {/* Primary Anchor (500) */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-            Primary 500 Base Color
-          </label>
-          <div className="flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+        {/* Base Anchor 500 Color */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2.5">
+          <span className="text-xs font-medium text-[#1d1d1f]">Anchor (500 Shade)</span>
+          <div className="flex items-center gap-3">
             <input
               type="color"
-              value={baseHex}
-              onChange={(e) => setBaseHex(e.target.value)}
-              className="w-8 h-8 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
+              value={baseColor}
+              onChange={(e) => setBaseColor(e.target.value)}
+              className="w-10 h-10 rounded-xl cursor-pointer border border-[#e5e5ea] p-0.5 bg-white"
             />
             <input
               type="text"
-              value={baseHex.toUpperCase()}
-              onChange={(e) => setBaseHex(e.target.value)}
-              className="w-24 px-2 py-1 text-xs font-mono rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none"
+              value={baseColor.toUpperCase()}
+              onChange={(e) => setBaseColor(e.target.value)}
+              className="flex-1 px-3 py-2 text-xs font-mono rounded-xl bg-white border border-[#e5e5ea] text-[#1d1d1f]"
             />
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="w-full mt-auto py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-          <span>{copied ? 'Copied Tailwind Config!' : 'Copy tailwind.config.js'}</span>
-        </button>
+        {/* Palette Name */}
+        <div className="p-3.5 bg-[#fafafc] rounded-2xl border border-[#e5e5ea] flex flex-col gap-2">
+          <span className="text-xs font-medium text-[#1d1d1f]">Tailwind Color Key Name</span>
+          <input
+            type="text"
+            value={paletteName}
+            onChange={(e) => setPaletteName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+            className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-white border border-[#e5e5ea] text-[#1d1d1f]"
+            placeholder="e.g. brand, primary, ocean"
+          />
+        </div>
+
+        {/* Export Action */}
+        <div className="mt-auto pt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={copyConfig}
+            className="apple-pill-btn apple-pill-btn-primary gap-1.5 shadow-2xs"
+          >
+            {copiedKey === 'CONFIG' ? <Check className="w-4 h-4 text-white" /> : <Copy className="w-4 h-4" />}
+            <span>{copiedKey === 'CONFIG' ? 'Config Copied!' : 'Copy tailwind.config.js'}</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Preview */}
-      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-y-auto custom-scrollbar">
-        <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">
-            Generated {name} Scale (50–950)
-          </h3>
-          {SHADES.map((shade) => (
-            <div
-              key={shade}
-              className="flex items-center justify-between p-3 rounded-xl transition-all shadow-xs"
-              style={{ backgroundColor: scale[shade] }}
-            >
-              <span
-                className={`text-xs font-bold font-mono ${
-                  shade >= 500 ? 'text-white' : 'text-slate-900'
-                }`}
-              >
-                {name}-{shade}
-              </span>
-              <span
-                className={`text-xs font-mono ${
-                  shade >= 500 ? 'text-white/80' : 'text-slate-900/80'
-                }`}
-              >
-                {scale[shade].toUpperCase()}
-              </span>
+      {/* Main Tailwind Scale Visualizer */}
+      <main className="relative flex-1 h-full apple-grid-bg flex items-center justify-center p-8 overflow-y-auto custom-scrollbar select-none">
+        <div className="w-full max-w-4xl bg-white p-6 rounded-2xl shadow-xl border border-[#e5e5ea] flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-[#1d1d1f] tracking-tight">
+                {paletteName} (50–950 Shades)
+              </h2>
+              <p className="text-xs text-[#86868b] mt-0.5">
+                Luminance-calibrated color ramp for Tailwind CSS utilities
+              </p>
             </div>
-          ))}
+          </div>
+
+          <div className="grid grid-cols-11 gap-2">
+            {SHADE_STEPS.map((step) => {
+              const hex = shades[step];
+              const isDark = step >= 500;
+              return (
+                <button
+                  key={step}
+                  type="button"
+                  onClick={() => copyShade(step, hex)}
+                  className="flex flex-col h-32 rounded-xl border border-[#e5e5ea] overflow-hidden justify-between p-2.5 transition-transform hover:scale-105 cursor-pointer relative group shadow-2xs"
+                  style={{ backgroundColor: hex }}
+                >
+                  <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {step}
+                  </span>
+                  <span className={`text-[10px] font-mono opacity-90 ${isDark ? 'text-white/80' : 'text-slate-800'}`}>
+                    {copiedKey === `${step}` ? 'Copied!' : hex.toUpperCase()}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>
   );
 };
+
+function interpolateColor(color1: string, color2: string, factor: number) {
+  const r1 = parseInt(color1.slice(1, 3), 16);
+  const g1 = parseInt(color1.slice(3, 5), 16);
+  const b1 = parseInt(color1.slice(5, 7), 16);
+
+  const r2 = parseInt(color2.slice(1, 3), 16);
+  const g2 = parseInt(color2.slice(3, 5), 16);
+  const b2 = parseInt(color2.slice(5, 7), 16);
+
+  const r = Math.round(r1 + factor * (r2 - r1));
+  const g = Math.round(g1 + factor * (g2 - g1));
+  const b = Math.round(b1 + factor * (b2 - b1));
+
+  const toHex = (x: number) => x.toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}

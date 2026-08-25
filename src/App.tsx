@@ -19,21 +19,26 @@ import { SavePresetModal } from './components/modals/SavePresetModal';
 import { ToolsGalleryModal } from './components/modals/ToolsGalleryModal';
 
 // Shaders & Gradients Studios
+import { MeshGradientStudio } from './tools/shaders/MeshGradientStudio';
 import { GodRaysStudio } from './tools/shaders/GodRaysStudio';
 import { FractalGlassStudio } from './tools/shaders/FractalGlassStudio';
-import { GradientStudio } from './tools/shaders/GradientStudio';
 
 // Patterns & Textures Studios
-import { CssPatternStudio } from './tools/patterns/CssPatternStudio';
 import { HalftoneStudio } from './tools/patterns/HalftoneStudio';
-import { DitherStudio } from './tools/patterns/DitherStudio';
+import { CmykHalftoneStudio } from './tools/patterns/CmykHalftoneStudio';
+import { GeometricPatternStudio } from './tools/patterns/GeometricPatternStudio';
+import { SeamlessPatternStudio } from './tools/patterns/SeamlessPatternStudio';
 import { GridBackgroundStudio } from './tools/patterns/GridBackgroundStudio';
+import { PolkaDotStudio } from './tools/patterns/PolkaDotStudio';
+import { CssPatternStudio } from './tools/patterns/CssPatternStudio';
+import { FilmGrainStudio } from './tools/patterns/FilmGrainStudio';
 
 // SVG & Charts Studios
 import { SvgChartStudio } from './tools/svg/SvgChartStudio';
 
 // Colors & Palettes Studios
 import { HarmonicPaletteStudio } from './tools/colors/HarmonicPaletteStudio';
+import { ColorTintsShadesStudio } from './tools/colors/ColorTintsShadesStudio';
 import { TailwindPaletteStudio } from './tools/colors/TailwindPaletteStudio';
 import { ImagePaletteExtractorStudio } from './tools/colors/ImagePaletteExtractorStudio';
 
@@ -121,6 +126,7 @@ export function App() {
   // Render Studio dynamically based on active tool
   const renderActiveToolStudio = () => {
     switch (activeToolId) {
+      // 1. Shaders & Gradients
       case 'shader-background-generator':
         return (
           <>
@@ -174,8 +180,7 @@ export function App() {
         );
 
       case 'mesh-gradients':
-      case 'gradient-generator':
-        return <GradientStudio />;
+        return <MeshGradientStudio />;
 
       case 'god-rays-generator':
         return <GodRaysStudio />;
@@ -183,28 +188,41 @@ export function App() {
       case 'fractal-glass-effect':
         return <FractalGlassStudio />;
 
+      // 2. Patterns & Textures
       case 'halftone-generator':
-      case 'cmyk-halftone':
         return <HalftoneStudio />;
 
+      case 'cmyk-halftone':
+        return <CmykHalftoneStudio />;
+
       case 'geometric-patterns':
+        return <GeometricPatternStudio />;
+
       case 'seamless-patterns':
-      case 'css-backgrounds':
-      case 'polka-dot-pattern-generator':
-        return <CssPatternStudio />;
+        return <SeamlessPatternStudio />;
 
       case 'grid-background-pattern-generator':
         return <GridBackgroundStudio />;
 
-      case 'add-grain-to-images':
-        return <DitherStudio />;
+      case 'polka-dot-pattern-generator':
+        return <PolkaDotStudio />;
 
+      case 'css-backgrounds':
+        return <CssPatternStudio />;
+
+      case 'add-grain-to-images':
+        return <FilmGrainStudio />;
+
+      // 3. SVG & Charts
       case 'svg-chart-generator':
         return <SvgChartStudio />;
 
+      // 4. Colors & Palettes
       case 'color-palette-generator':
-      case 'color-tints-shades-generator':
         return <HarmonicPaletteStudio />;
+
+      case 'color-tints-shades-generator':
+        return <ColorTintsShadesStudio />;
 
       case 'tailwind-color-palette-generator':
         return <TailwindPaletteStudio />;
