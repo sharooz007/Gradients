@@ -48,8 +48,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   return (
-    <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col z-20 overflow-hidden">
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar">
+    <aside className="w-80 h-full max-h-full shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-4 z-20 custom-scrollbar overscroll-contain">
         {/* Colors Panel */}
         <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 flex flex-col gap-3">
           <ColorPickerGroup
@@ -488,7 +487,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             </div>
           </div>
         </div>
-      </div>
     </aside>
   );
 };

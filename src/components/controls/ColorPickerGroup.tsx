@@ -81,24 +81,24 @@ export const ColorPickerGroup: React.FC<ColorPickerGroupProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveIdx(isOpen ? null : index)}
-                className={`relative w-8 h-8 rounded-lg border shadow-sm transition-all transform hover:scale-105 flex items-center justify-center ${
+                className={`w-8 h-8 rounded-lg border shadow-sm transition-all transform hover:scale-105 flex items-center justify-center cursor-pointer ${
                   isOpen
                     ? 'border-indigo-600 ring-2 ring-indigo-500/30 scale-105'
                     : 'border-slate-300/80 dark:border-slate-600/80'
                 }`}
                 style={{ backgroundColor: color }}
-              >
-                {colors.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={(e) => handleRemoveColor(index, e)}
-                    className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-slate-900 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all shadow-sm"
-                    title="Remove color"
-                  >
-                    <X className="w-2.5 h-2.5" />
-                  </button>
-                )}
-              </button>
+              />
+
+              {colors.length > 2 && (
+                <button
+                  type="button"
+                  onClick={(e) => handleRemoveColor(index, e)}
+                  className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-slate-900 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500 transition-all shadow-sm z-10 cursor-pointer"
+                  title="Remove color"
+                >
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              )}
 
               {/* Color picker dropdown popover */}
               {isOpen && (

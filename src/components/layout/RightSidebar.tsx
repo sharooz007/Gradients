@@ -135,7 +135,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       </div>
 
       {/* Presets Grid */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-2.5 custom-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-2.5 custom-scrollbar overscroll-contain">
         {filteredPresets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center p-4">
             <Bookmark className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />

@@ -188,7 +188,7 @@ export function App() {
       case 'shader-background-generator':
         return (
           <>
-            <div className="flex-1 flex min-h-0 overflow-hidden">
+            <div className="flex-1 flex min-h-0 h-[calc(100vh-3.5rem)] overflow-hidden">
               <LeftSidebar
                 state={activeShaderState}
                 onUpdateState={updateState}
