@@ -59,9 +59,9 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   };
 
   return (
-    <aside className="w-72 h-full border-l border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col z-20 select-none overflow-hidden">
+    <aside className="w-72 h-full min-h-0 shrink-0 border-l border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col z-20 overflow-hidden">
       {/* Sidebar Header */}
-      <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-2.5">
+      <div className="p-3 shrink-0 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-indigo-500" />
@@ -95,12 +95,12 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           </div>
         </div>
 
-        {/* Tab switch */}
-        <div className="flex p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+        {/* Tab switcher: Curated vs Custom */}
+        <div className="grid grid-cols-2 p-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">
           <button
             type="button"
             onClick={() => setTab('curated')}
-            className={`flex-1 py-1 px-2 rounded-md font-medium transition-all ${
+            className={`py-1 rounded-md transition-all ${
               tab === 'curated'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
                 : 'text-slate-500 dark:text-slate-400'
@@ -111,7 +111,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
           <button
             type="button"
             onClick={() => setTab('custom')}
-            className={`flex-1 py-1 px-2 rounded-md font-medium transition-all ${
+            className={`py-1 rounded-md transition-all ${
               tab === 'custom'
                 ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-semibold'
                 : 'text-slate-500 dark:text-slate-400'
@@ -135,7 +135,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
       </div>
 
       {/* Presets Grid */}
-      <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-2.5 custom-scrollbar">
         {filteredPresets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-center p-4">
             <Bookmark className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />

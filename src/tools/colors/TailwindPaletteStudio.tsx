@@ -69,9 +69,9 @@ export const TailwindPaletteStudio: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex h-full overflow-hidden select-none">
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
       {/* Sidebar Controls */}
-      <aside className="w-80 h-full border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto">
+      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
           <PaintBucket className="w-4 h-4 text-indigo-500" />
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
@@ -124,7 +124,7 @@ export const TailwindPaletteStudio: React.FC = () => {
       </aside>
 
       {/* Preview */}
-      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-y-auto">
+      <main className="flex-1 canvas-grid-bg flex items-center justify-center p-8 overflow-y-auto custom-scrollbar">
         <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
           <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">
             Generated {name} Scale (50–950)

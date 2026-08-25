@@ -81,9 +81,9 @@ export const ShapeGeneratorStudio: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex h-full overflow-hidden select-none">
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden select-none">
       {/* Sidebar Controls */}
-      <aside className="w-80 h-full border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto">
+      <aside className="w-80 h-full min-h-0 shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 p-4 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
           <Hexagon className="w-4 h-4 text-amber-500" />
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
